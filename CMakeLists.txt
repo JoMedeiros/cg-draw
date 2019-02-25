@@ -1,7 +1,7 @@
 cmake_minimum_required( VERSION 3.1 )
 project( cg-draw )
 
-set(SRCS src/driver.cpp)
+set(SRCS src/driver.cpp src/canvas.cpp)
 
 add_executable( ${PROJECT_NAME} ${SRCS})
 
