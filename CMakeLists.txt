@@ -1,7 +1,11 @@
 cmake_minimum_required( VERSION 3.1 )
 project( cg-draw )
 
+set(COMP_FLAGS "-std=c++11")
+
 set(SRCS src/driver.cpp src/canvas.cpp)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMP_FLAGS}")
 
 add_executable( ${PROJECT_NAME} ${SRCS})
 

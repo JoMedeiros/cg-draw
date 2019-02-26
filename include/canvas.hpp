@@ -20,6 +20,7 @@ class Canvas
    void scanline();
    void bresenham(int x1, int y1, int x2, int y2);
    void midptellipse(int rx, int ry, int xc, int yc);
+   void scanline(int **lines);
  public:
    Canvas(int width, int height) : _w{width}, _h{height},
      _pixels{new unsigned char[width*height*CHANNELS]} {/*Empty*/}

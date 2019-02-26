@@ -1,4 +1,5 @@
 #include "canvas.hpp"
+#include "utils.hpp"
 
 unsigned char WHITE[3] = {255, 255, 255};
 unsigned char RED[3]   = {255,   0,   0};
@@ -109,4 +110,14 @@ void Canvas::midptellipse(int rx, int ry, int xc, int yc) {
             d2 = d2 + dx - dy + (rx * rx);
         }
     }
+}
+/**
+ * Fill algorithm scanline
+ * \param lines a list o coordenates
+ */
+void Canvas::scanline(int **lines)
+{
+  //@TODO ordenar as linhas por y_min
+  // - ideia: criar uma classe util de fraction para facilitar os
+  // calculos com o coeficiente angular
 }
