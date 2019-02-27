@@ -4,13 +4,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-
-#define CHANNELS 3
-#define PRINTPXL(x,y,c) {\
-  _pixels[CHANNELS*(x+y*_w)] = c[0];\
-  _pixels[CHANNELS*(x+y*_w)+1] = c[1];\
-  _pixels[CHANNELS*(x+y*_w)+2] = c[2];\
-}
+#include "utils.hpp"
 
 class Canvas
 {
@@ -18,7 +12,7 @@ class Canvas
    int _w, _h;
    unsigned char * _pixels;
    void scanline();
-   void bresenham(int x1, int y1, int x2, int y2);
+   void bresenhamline(int x1, int y1, int x2, int y2);
    void midptellipse(int rx, int ry, int xc, int yc);
    void scanline(int **lines);
  public:
