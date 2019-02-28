@@ -13,8 +13,15 @@ void Canvas::draw() {
 /**
  * Draws line in the canvas _pixels
  */
-void Canvas::line(int x1, int y1, int x2, int y2) {
+void Canvas::line(int x1, int y1, int x2, int y2, Color c) {
   bresenhamline(x1, y1, x2, y2);
+}
+/**
+ * Draws line in the canvas _pixels
+ */
+void Canvas::line(Point pt1, Point pt2, Color c)
+{
+  bresenhamline(pt1.x, pt1.y, pt2.x, pt2.y);
 }
 /**
  * Saves the canvas as a ppm image

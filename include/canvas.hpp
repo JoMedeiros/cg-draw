@@ -14,7 +14,7 @@ class Canvas
    int _w, _h;
    unsigned char * _pixels;
    void scanline();
-   void bresenhamline(int x1, int y1, int x2, int y2);
+   void bresenhamline(int x1, int y1, int x2, int y2, Color c);
    void midptellipse(int rx, int ry, int xc, int yc);
    void scanline(int **lines);
  public:
@@ -24,8 +24,9 @@ class Canvas
    }
    void draw();
    void imwrite(std::string filename);
+   void line(int x1, int y1, int x2, int y2, Color c=Color(0,0,0));
+   void line(Point pt1, Point pt2, Color c=Color(0,0,0));
    void rect(int width, int height, int cx=0, int cy=0);
-   void line(int x1, int y1, int x2, int y2);
    void poly(int * coords);
 };
 

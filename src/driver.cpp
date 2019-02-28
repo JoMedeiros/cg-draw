@@ -13,7 +13,7 @@ int main(int argc, char * argv[])
   }*/
   Canvas c(400,300);
   // A line with -1 < m < 0
-  c.line(10,100, 200, 50);
+  c.line(Point(10,100), Point(200, 50));
   // A line with 0 < m < 1
   c.line(20,20,200,100);
   // A line with m > 1
