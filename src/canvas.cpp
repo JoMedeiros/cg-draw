@@ -8,7 +8,7 @@ void Canvas::draw() {
     for ( int j = 0; j < _h; ++j )
       PRINTPXL(i, j , BG);
   // Draw functions
-  line(10,10, 100, 250);
+  //line(10,10, 100, 250);
 }
 /**
  * Draws line in the canvas _pixels
@@ -20,7 +20,7 @@ void Canvas::line(int x1, int y1, int x2, int y2) {
  * Saves the canvas as a ppm image
  */
 void Canvas::imwrite(std::string filename) {
-  this->draw();
+  //this->draw();
   std::fstream fs (filename, std::fstream::out);
   if (!fs) 
     std::cout << "Error loading file\n";
@@ -33,16 +33,37 @@ void Canvas::imwrite(std::string filename) {
  * Bresenham Algorithm to draw lines
  */
 void Canvas::bresenhamline(int x1, int y1, int x2, int y2) {
-  //@TODO verify conitions of m (currently it works only for 0 <= m <= 1)
-  int m_new = 2 * (y2 - y1);
+  //@TODO change function to take Color as a parameter
+  bool increase_x = abs(x1 - x2) > abs(y1 - y2);
+  int m_new = 2 * abs(y2 - y1);
   int slope_error_new = m_new - (x2 - x1);
+  if (not increase_x) {
+    m_new = 2 * abs(x2 - x1);
+    slope_error_new = m_new - (y2 - y1);
+  }
   Color RED = Color(255,0,0);
-  for (int x = x1, y = y1; x <= x2; ++x) {
-    PRINTPXL(x,y,RED);
-    slope_error_new += m_new;
-    if (slope_error_new >= 0) {
-      ++y;
-      slope_error_new -= 2 * (x2 - x1);
+  if (increase_x){
+    if (x1 > x2) {std::swap(x1,x2);std::swap(y1,y2);}
+    for (int x = x1, y = y1; x <= x2; ++x) {
+      PRINTPXL(x,y,RED);
+      slope_error_new += m_new;
+      if (slope_error_new >= 0) {
+        if (y1 < y2) ++y;
+        else --y;
+        slope_error_new -= 2 * (x2 - x1);
+      }
+    }
+  }
+  else {
+    if (y1 > y2) {std::swap(x1,x2);std::swap(y1,y2);}
+    for (int y = y1, x = x1; y <= y2; ++y) {
+      PRINTPXL(x,y,RED);
+      slope_error_new += m_new;
+      if (slope_error_new >= 0) {
+        if (x1 < x2) ++x;
+        else --x;
+        slope_error_new -= 2 * (y2 - y1);
+      }
     }
   }
 }

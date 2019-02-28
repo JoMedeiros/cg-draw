@@ -4,6 +4,8 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <cstdlib>
+#include <utility>
 #include "utils.hpp"
 
 class Canvas
@@ -17,7 +19,9 @@ class Canvas
    void scanline(int **lines);
  public:
    Canvas(int width, int height) : _w{width}, _h{height},
-     _pixels{new unsigned char[width*height*CHANNELS]} {/*Empty*/}
+     _pixels{new unsigned char[width*height*CHANNELS]} {
+       this->draw();
+   }
    void draw();
    void imwrite(std::string filename);
    void rect(int width, int height, int cx=0, int cy=0);

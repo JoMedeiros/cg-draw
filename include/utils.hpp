@@ -8,6 +8,12 @@
   _pixels[CHANNELS*(x+y*_w)+2] = c.b;\
 }
 
+struct Point
+{
+  int x, y;
+  Point(int _x, int _y) : x(_x), y(_y) {}
+};
+
 struct Line
 {
   int x1,y1,x2,y2;
