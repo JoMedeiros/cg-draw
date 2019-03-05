@@ -1,27 +1,131 @@
 #include "canvas.hpp"
-
+// @TODO General: avoid printing pixel outside the canvas
+/**
+ * Draws the background
+ */
 void Canvas::draw() {
   // @TODO Call draw function in a vector of drawable entities?
   Color BG = Color(255,255,255);
   // Initializing background
   for ( int i = 0; i < _w; ++i )
     for ( int j = 0; j < _h; ++j )
-      PRINTPXL(i, j , BG);
-  // Draw functions
-  //line(10,10, 100, 250);
+      printpxl(i, j , BG);
 }
 /**
  * Draws line in the canvas _pixels
  */
 void Canvas::line(int x1, int y1, int x2, int y2, Color c) {
-  bresenhamline(x1, y1, x2, y2);
+  bresenhamline(x1, y1, x2, y2, c);
 }
 /**
  * Draws line in the canvas _pixels
  */
-void Canvas::line(Point pt1, Point pt2, Color c)
+void Canvas::line(Point pt1, Point pt2, Color color)
 {
-  bresenhamline(pt1.x, pt1.y, pt2.x, pt2.y);
+  bresenhamline(pt1.x, pt1.y, pt2.x, pt2.y, color);
+}
+/**
+ * Draws circle in the canvas _pixels
+ */
+void Canvas::circle(Point c, int r, Color color)
+{
+  bresenhamcircle(c,r,color);
+}
+/**
+ * Bresenham Algorithm to draw circles
+ */
+void Canvas::bresenhamcircle(Point c, int r, Color color) {
+  int x = 0, y = r;
+  int d = 3 - 2 * r;
+  mirrorCircle(c.x, c.y, x, y, color);
+  while (y >= x) {
+    ++x;
+    if (d > 0){
+      --y;
+      d = d + 4 * (x - y) + 10;
+    }
+    else
+      d = d + 4 * x + 6;
+    mirrorCircle(c.x, c.y, x, y, color);
+  }
+}
+/**
+ * Draws tge other 8 mirrored points of the cricle
+ */
+void Canvas::mirrorCircle(int xc, int yc, int x, int y, Color color) {
+  printpxl(xc+x, yc+y, color);
+  printpxl(xc-x, yc+y, color);
+  printpxl(xc+x, yc-y, color);
+  printpxl(xc-x, yc-y, color);
+  printpxl(xc+y, yc+x, color);
+  printpxl(xc-y, yc+x, color);
+  printpxl(xc+y, yc-x, color);
+  printpxl(xc-y, yc-x, color);
+}
+/**
+ * Bresenham Algorithm to draw lines
+ */
+void Canvas::bresenhamline(int x1, int y1, int x2, int y2, Color c) {
+  //@TODO change function to take Color as a parameter
+  bool increase_x = abs(x1 - x2) >= abs(y1 - y2);
+  int m_new = 2 * abs(y2 - y1);
+  int slope_error_new = m_new - abs(x2 - x1);
+  if (increase_x){
+    if (x1 > x2) {std::swap(x1,x2);std::swap(y1,y2);}
+    for (int x = x1, y = y1; x <= x2; ++x) {
+      printpxl(x,y,c);
+      slope_error_new += m_new;
+      if (slope_error_new >= 0) {
+        if (y1 < y2) ++y;
+        else --y;
+        slope_error_new -= 2 * (x2 - x1);
+      }
+    }
+  }
+  else {
+    m_new = 2 * abs(x2 - x1);
+    slope_error_new = m_new - (y2 - y1);
+    if (y1 > y2) {std::swap(x1,x2);std::swap(y1,y2);}
+    for (int y = y1, x = x1; y <= y2; ++y) {
+      printpxl(x,y,c);
+      slope_error_new += m_new;
+      if (slope_error_new >= 0) {
+        if (x1 < x2) ++x;
+        else --x;
+        slope_error_new -= 2 * (y2 - y1);
+      }
+    }
+  }
+}
+void Canvas::rect(int _w, int _h, Point start, Color color) {
+  int x = start.x, y = start.y;
+  for ( ; x <= (start.x+_w); ++x)
+    printpxl(x, y, color);
+  for ( ; y <= (start.y+_h); ++y)
+    printpxl(x, y, color);
+  for ( ; x >= (start.x); --x)
+    printpxl(x, y, color);
+  for ( ; y >= (start.y); --y)
+    printpxl(x, y, color);
+}
+void Canvas::rect(Point topleft, Point bottomright, Color color) {
+  int _w = bottomright.x - topleft.x;
+  int _h = bottomright.y - topleft.y;
+  rect(_w, _h, topleft, color);
+}
+void Canvas::poly(std::vector<Point> points, Color color) {
+  for (int i = 1; i < points.size(); ++i) 
+    line(points[i-1], points[i], color);
+}
+/**
+ * Fill algorithm scanline
+ * \param lines a list o coordenates
+ */
+void Canvas::scanline(int **lines)
+{
+  //@TODO ordenar as linhas por y_min
+  // - ideia: criar uma classe util de fraction para facilitar os
+  // calculos com o coeficiente angular
 }
 /**
  * Saves the canvas as a ppm image
@@ -36,112 +140,13 @@ void Canvas::imwrite(std::string filename) {
     fs << (int) _pixels[i] << "\n";
   fs.close();
 }
-/**
- * Bresenham Algorithm to draw lines
- */
-void Canvas::bresenhamline(int x1, int y1, int x2, int y2) {
-  //@TODO change function to take Color as a parameter
-  bool increase_x = abs(x1 - x2) > abs(y1 - y2);
-  int m_new = 2 * abs(y2 - y1);
-  int slope_error_new = m_new - (x2 - x1);
-  if (not increase_x) {
-    m_new = 2 * abs(x2 - x1);
-    slope_error_new = m_new - (y2 - y1);
-  }
-  Color RED = Color(255,0,0);
-  if (increase_x){
-    if (x1 > x2) {std::swap(x1,x2);std::swap(y1,y2);}
-    for (int x = x1, y = y1; x <= x2; ++x) {
-      PRINTPXL(x,y,RED);
-      slope_error_new += m_new;
-      if (slope_error_new >= 0) {
-        if (y1 < y2) ++y;
-        else --y;
-        slope_error_new -= 2 * (x2 - x1);
-      }
-    }
-  }
-  else {
-    if (y1 > y2) {std::swap(x1,x2);std::swap(y1,y2);}
-    for (int y = y1, x = x1; y <= y2; ++y) {
-      PRINTPXL(x,y,RED);
-      slope_error_new += m_new;
-      if (slope_error_new >= 0) {
-        if (x1 < x2) ++x;
-        else --x;
-        slope_error_new -= 2 * (y2 - y1);
-      }
-    }
-  }
-}
-/**
- * Mid point algorithm to draw ellipse
- */
-void Canvas::midptellipse(int rx, int ry, int xc, int yc) {
-  float dx, dy, d1, d2, x, y;
-  x = 0;
-  y = ry;
-  Color GREEN = Color(0,255,0);
-  // Initial decision parameter of region 1
-  d1 = (ry * ry) - (rx * rx * ry) + (0.25 * rx * rx);
-  dx = 2 * ry * ry * x;
-  dy = 2 * rx * rx * y;
-  // For region 1
-  while (dx < dy) {
-    // Print points based on 4-way symmetry
-    PRINTPXL((int) x + xc,(int) y + yc, GREEN );
-    PRINTPXL((int) -x + xc,(int) y + yc, GREEN);
-    PRINTPXL((int) x + xc, (int)-y + yc, GREEN);
-    PRINTPXL((int) -x + xc, (int)-y + yc, GREEN);
-
-    // Checking and updating value of
-    // decision parameter based on algorithm
-    if (d1 < 0) {
-      x++;
-      dx = dx + (2 * ry * ry);
-      d1 = d1 + dx + (ry * ry);
-    }
-    else {
-      x++;
-      y--;
-      dx = dx + (2 * ry * ry);
-      dy = dy - (2 * rx * rx);
-      d1 = d1 + dx - dy + (ry * ry);
-    }
-  }
-  // Decision parameter of region 2
-  d2 = ((ry * ry) * ((x + 0.5) * (x + 0.5))) +
-       ((rx * rx) * ((y - 1) * (y - 1))) -
-        (rx * rx * ry * ry);
-  // Plotting points of region 2
-  while (y >= 0) {
-    PRINTPXL((int) x + xc,(int) y + yc, GREEN );
-    PRINTPXL((int) -x + xc,(int) y + yc, GREEN);
-    PRINTPXL((int) x + xc,(int) -y + yc, GREEN);
-    PRINTPXL((int) -x + xc,(int) -y + yc, GREEN);
-    // Checking and updating parameter
-    // value based on algorithm
-    if (d2 > 0) {
-      y--;
-      dy = dy - (2 * rx * rx);
-      d2 = d2 + (rx * rx) - dy;
-    }
-    else {
-      y--;
-      x++;
-      dx = dx + (2 * ry * ry);
-      dy = dy - (2 * rx * rx);
-      d2 = d2 + dx - dy + (rx * rx);
-    }
-  }
-}
-/**
- * Fill algorithm scanline
- * \param lines a list o coordenates
- */
-void Canvas::scanline(int **lines)
+void Canvas::printpxl(int x, int y, Color color)
 {
-  //@TODO ordenar as linhas por y_min
-  // - ideia: criar uma classe util de fraction para facilitar os
-  // calculos com o coeficiente angular
+  if (x > _w or y > _h or x < 0 or y < 0) {
+    //std::cerr << "point out of boundaries\n";
+    return;
+  }
+  _pixels[(y*_w + x)*CHANNELS] = color.r;
+  _pixels[(y*_w + x)*CHANNELS + 1] = color.g;
+  _pixels[(y*_w + x)*CHANNELS + 2] = color.b;
 }
