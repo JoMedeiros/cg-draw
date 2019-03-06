@@ -7,11 +7,36 @@
 
 ## Usage
 
-./cg-draw \<imagem\_name\>
+You will need to install [yaml-cpp](https://github.com/jbeder/yaml-cpp/)
+library. Run the command:
+
+``` 
+bash ./install-yaml-cpp-locally.sh 
+```
+
+If you already have the `yaml-cpp` installed you will need to modify
+the `CMakeLists.txt` to link to your library and include files. 
+To compile:
+
+```
+git clone https://github.com/JoMedeiros/cg-draw.git
+mkdir build && cd build
+cmake ..
+make
+```
+
+Run the program with:
+
+```
+./cg-draw \<image\_name\> 
+```
+
+Where \<image\_name\> is a path to a image descriptor in yaml format.
 
 ### yaml image format
 
-Here's an example of image description
+Here's an example of image description:
+
 ```
 width: 800
 height: 600
@@ -35,5 +60,4 @@ radius.
 
 - [yaml-cpp](https://github.com/jbeder/yaml-cpp/):
 a library to parse yaml files
-
 
