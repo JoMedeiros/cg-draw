@@ -1,0 +1,10 @@
+width: 800
+height: 600
+colors:
+  white: [ 255, 255, 255 ]
+objects:
+  line: {x1: 100, y1: 100, x2: 300, y2: 300}
+  circle: {cx: 400, cy: 300, r: 200, stroke: [255, 0, 0]}
+  circle: {cx: 200, cy: 100, r: 150}
+  rect: {x1: 50, y1: 50, x2: 750, y2: 550}
+
