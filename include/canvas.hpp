@@ -1,12 +1,15 @@
 #ifndef __CANVAS_HPP__
 #define __CANVAS_HPP__
 
-#include <string>
+#include <string>     //std::string
 #include <fstream>
-#include <iostream>
+#include <iostream>   //std::cout
 #include <cstdlib>
 #include <utility>
-#include <vector>
+#include <vector>     //std::vector
+#include <list>       //std::list
+#include <deque>      //std::deque
+#include <algorithm>  //std::sort
 #include "utils.hpp"
 
 #define CHANNELS 3
@@ -16,7 +19,6 @@ class Canvas
  private:
    int _w, _h;
    unsigned char * _pixels;
-   void scanline();
    void bresenhamline(int x1, int y1, int x2, int y2, Color c);
    void bresenhamcircle(Point c, int r, Color color);
    void mirrorCircle(int xc, int yc, int x, int y, Color color);
@@ -35,7 +37,9 @@ class Canvas
    void circle(Point c, int r, Color color=Color(0,0,0));
    void rect(int _w, int _h, Point start, Color color=Color(0,0,0));
    void rect(Point topleft, Point bottomright, Color color=Color(0,0,0));
-   void poly(std::vector<Point> points, Color color=Color(0,0,0));
+   void polyline(std::vector<Point> points, Color color=Color(0,0,0));
+   void polygon(std::vector<Point> points, Color color=Color(0,0,0));
+   void scanline(std::vector<Point> points, Color color=Color(0,0,0));
 };
 
 #endif

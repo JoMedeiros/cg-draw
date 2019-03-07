@@ -97,6 +97,9 @@ void Canvas::bresenhamline(int x1, int y1, int x2, int y2, Color c) {
     }
   }
 }
+/**
+ * A simple algorithm to draw rectangle
+ */
 void Canvas::rect(int _w, int _h, Point start, Color color) {
   int x = start.x, y = start.y;
   for ( ; x <= (start.x+_w); ++x)
@@ -113,19 +116,60 @@ void Canvas::rect(Point topleft, Point bottomright, Color color) {
   int _h = bottomright.y - topleft.y;
   rect(_w, _h, topleft, color);
 }
-void Canvas::poly(std::vector<Point> points, Color color) {
+
+void Canvas::polyline(std::vector<Point> points, Color color) {
   for (int i = 1; i < points.size(); ++i) 
     line(points[i-1], points[i], color);
 }
+void Canvas::polygon(std::vector<Point> points, Color color) {
+  size_t n = points.size();
+  for (int i = 1; i < n; ++i) 
+    line(points[i-1], points[i], color);
+  line(points[0], points[n-1], color);
+}
 /**
  * Fill algorithm scanline
- * \param lines a list o coordenates
+ * \param lines a list o points of the polygon
  */
-void Canvas::scanline(int **lines)
+void Canvas::scanline(std::vector<Point> points, Color color)
 {
   //@TODO ordenar as linhas por y_min
   // - ideia: criar uma classe util de fraction para facilitar os
   // calculos com o coeficiente angular
+  size_t n = points.size();
+  std::deque<Line> lines(n);
+  for (int i = 1; i < n; ++i)
+    lines[i] = Line(points[i-1], points[i]);
+  lines[0] = Line(points[0], points[n-1]);
+  // Sorting the lines by y_min
+  std::sort(lines.begin(), lines.end(), Line::comp_ymin);
+  int yi = lines[0].y_min();
+  int yf = lines[0].y_max();
+  for (auto it = lines.begin(); it != lines.end(); ++it){
+    yf = (it->y_max() > yf) ? it->y_max() : yf;
+  }
+  // @TODO modify it to not use m as float
+  std::deque<Line> work;
+  int dy = 0;
+  // For each scanline do:
+  for (;yi < yf; ++yi) {
+    std::deque<Point> sl_pts;
+    while ( lines.front().y_min() < yi ) {
+      work.push_front(lines.front());
+      lines.pop_front();
+    }
+    for (auto it=work.begin(); it != work.end(); ++it){
+      // If scanline is higher than the line, remove it
+      if (it->y_max() < yi) {
+        work.erase(it);
+      }
+      // Else, calculate the intersections
+      else {
+        std::cout << "line inclination: " << it->m_i << "\n";
+      }
+    }
+    ++dy;
+  }
 }
 /**
  * Saves the canvas as a ppm image
