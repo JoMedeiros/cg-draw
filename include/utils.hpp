@@ -7,12 +7,33 @@ struct Point
   Point(int _x, int _y) : x(_x), y(_y) {}
 };
 
+// @TODO Try to resolve scanline without float m_i
 struct Line
 {
-  int x1,y1,x2,y2;
-  int y_min()
-  {
-    return y1 > y2 ? y1 : y2;
+  Point start, end;
+  float m_i;
+  int y_min() const {
+    return start.y < end.y ? start.y : end.y;
+  }
+  int y_max() {
+    return start.y > end.y ? start.y : end.y;
+  }
+  Point y_min_pt() {
+    return start.y < end.y ? start : end;
+  }
+  Line(int x1, int y1, int x2, int y2): start(x1, y1), end(x2, y2) {
+    if ((y1-y2) == 0) m_i = 0;
+    else m_i = (float)(x1 - x2)/(y1 -y2);
+  }
+  Line(Point s=Point(0,0), Point e=Point(0,0)): start(s), end(e) {
+    if ((s.y-e.y) == 0) m_i = 0;
+    else m_i = (float)(s.x - e.x)/(s.y - e.y);
+  }
+  bool operator<(/*const Line& l,*/ Line& r) {
+    return this->y_min() < r.y_min();
+  }
+  static bool comp_ymin( Line& l,  Line& r){
+    return l.y_min() < r.y_min();
   }
 };
 

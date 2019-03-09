@@ -7,7 +7,14 @@ int main(int argc, char * argv[])
 {
   if (argc == 1) {
     std::cout << "Missing arguments. Usage:\n" << argv[0] <<
-      " <image>\n<image>: Yaml image\n";
+      " <inpu_image> [<output_image>]\n<input_image>: Yaml description image"
+      <<"\n<output_image>: output ppm image file\n";
+    return 1;
+  }
+  else if (argc > 3) {
+    std::cout << "Too much arguments. Usage:\n" << argv[0] <<
+      " <inpu_image> [<output_image>]\n<input_image>: Yaml description image"
+      <<"\n<output_image>: output ppm image file\n";
     return 1;
   }
   int width, height;
@@ -88,25 +95,28 @@ int main(int argc, char * argv[])
     }
   }
 
-  Point pt1(10, 10), pt2(10, 50), pt3(20, 100),
-        pt4(400, 400);
+  Point pt1(410, 210), pt2(150, 150), pt3(120, 200),
+        pt4(400, 40);
 
-  // A line with -1 < m < 0
-  //c.line(pt1, pt2, Color(0,255,150));
-  // A line with 0 < m < 1
-  //c.line(pt2, pt3, Color(255,0,0));
-  // A line with m > 1
-  //c.line(pt3, pt4);
-  // A line with m < -1
-  //c.line(pt4, pt1);
-  // A circle
   c.circle(pt4, 200, Color(0,0,255));
   // A rectangle
   c.rect(200,50, Point(150,50), Color(255,255,0));
   std::vector<Point> pts = {pt1, pt2, pt3, pt4};
-  c.poly(pts, Color(255,111,97));
+  c.polygon(pts, Color(255,111,97));
+  c.scanline(pts);
+  
   // Saving image
-  c.imwrite(std::string("img.ppm"));
+  std::string ofile("img.ppm");
+  if ( argc == 3 ) {
+    std::string temp(argv[2]);
+    if ( temp.size() > 4 ) {
+      if ( temp.substr(temp.size()-4, 4).compare(".ppm") == 0 )
+        ofile = temp;
+      else 
+        ofile = temp + ".ppm";
+    }
+  }
+  c.imwrite(ofile);
   std::cout << "Hello YAML!\n";
   return 0;
 }
