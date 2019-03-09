@@ -17,9 +17,6 @@
 using namespace std;
 
 #define CHANNELS 3
-typedef std::vector< std::pair< int, Color > > _inter_list;
-typedef std::pair<int, _inter_list> Pair_line;
-// pair( x, color )
 
 class Canvas
 {
@@ -31,19 +28,28 @@ class Canvas
    void bresenhamcircle(Point c, int r, Color color);
    void mirrorCircle(int xc, int yc, int x, int y, Color color);
    void midptellipse(int rx, int ry, int xc, int yc);
-   void scanline(int **lines);
+   void print_scanline(unsigned char *start, unsigned char *end, Color color);
    bool printpxl(int x, int y, Color color=Color(0,0,0));
-   unsigned char * pos(int x, int y);
+   unsigned char * get_pos(int x, int y);
  public:
-   Canvas(int width, int height) : _w{width}, _h{height},
-     _pixels{new unsigned char[width*height*CHANNELS]} {
-       this->draw();
+   Canvas(int width, int height, Color color=Color(255, 255, 255)) : 
+     _w{width}, _h{height}, _pixels{new unsigned char[width*height*CHANNELS]} {
+       this->draw_bg(color);
    }
    ~Canvas(){
     delete _pixels;
    }
-   void draw();
+  /**
+   * Draws the background
+   */
+   void draw_bg(Color color=Color(255, 255, 255));
+  /**
+   * Saves the canvas as a ppm image
+   */
    void imwrite(std::string filename);
+  /**
+   * Draws line in the canvas _pixels
+   */
    void line(int x1, int y1, int x2, int y2, Color c=Color(0,0,0), bool scanline=false);
    void line(Point pt1, Point pt2, Color c=Color(0,0,0), bool scanline=false);
    void circle(Point c, int r, Color color=Color(0,0,0));
@@ -51,7 +57,7 @@ class Canvas
    void rect(Point topleft, Point bottomright, Color color=Color(0,0,0));
    void polyline(std::vector<Point> points, Color color=Color(0,0,0));
    void polygon(std::vector<Point> points, Color color=Color(0,0,0));
-   void scanline(std::vector<Point> points, Color color=Color(0,0,0));
+   //void scanline(std::vector<Point> points, Color color=Color(0,0,0));
 };
 
 #endif // __CANVAS_HPP__

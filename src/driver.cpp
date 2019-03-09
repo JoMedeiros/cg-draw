@@ -103,7 +103,7 @@ int main(int argc, char * argv[])
   c.rect(200,50, Point(150,50), Color(255,255,0));
   std::vector<Point> pts = {pt1, pt2, pt3, pt4};
   c.polygon(pts, Color(255,111,97));
-  c.scanline(pts);
+  //c.scanline(pts);
   
   // Saving image
   std::string ofile("img.ppm");

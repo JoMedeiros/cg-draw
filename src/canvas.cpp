@@ -1,34 +1,38 @@
 #include "canvas.hpp"
+
 // @TODO General: avoid printing pixel outside the canvas
-/**
- * Draws the background
- */
-void Canvas::draw() {
+
+void Canvas::draw_bg(Color color) {
   // @TODO Call draw function in a vector of drawable entities?
-  Color BG = Color(255,255,255);
   // Initializing background
   for ( int i = 0; i < _w; ++i )
     for ( int j = 0; j < _h; ++j )
-      printpxl(i, j , BG);
+      printpxl(i, j , color);
+}
+
+void Canvas::imwrite(std::string filename) {
+  std::fstream fs (filename, std::fstream::out);
+  if (!fs) 
+    std::cout << "Error loading file\n";
+  fs << "P3\n" << _w << " " << _h << "\n" << "255\n" ;
+  for ( int i = 0; i < _w*_h*3; ++i )
+    fs << (int) _pixels[i] << "\n";
+  fs.close();
 }
 /**
  * Draws line in the canvas _pixels
  */
+void Canvas::line(Point pt1, Point pt2, Color color, bool scanline) {
+  bresenhamline(pt1.x, pt1.y, pt2.x, pt2.y, color, scanline);
+}
+
 void Canvas::line(int x1, int y1, int x2, int y2, Color c, bool scanline) {
   bresenhamline(x1, y1, x2, y2, c, scanline);
 }
 /**
- * Draws line in the canvas _pixels
- */
-void Canvas::line(Point pt1, Point pt2, Color color, bool scanline)
-{
-  bresenhamline(pt1.x, pt1.y, pt2.x, pt2.y, color, scanline);
-}
-/**
  * Draws circle in the canvas _pixels
  */
-void Canvas::circle(Point c, int r, Color color)
-{
+void Canvas::circle(Point c, int r, Color color) {
   bresenhamcircle(c,r,color);
 }
 /**
@@ -66,8 +70,6 @@ void Canvas::mirrorCircle(int xc, int yc, int x, int y, Color color) {
  * Bresenham Algorithm to draw lines
  */
 void Canvas::bresenhamline(int x1, int y1, int x2, int y2, Color c, bool scanline) {
-  cout << "Starting line\n";
-  //@TODO change function to take Color as a parameter
   bool increase_x = abs(x1 - x2) >= abs(y1 - y2);
   int m_new = 2 * abs(y2 - y1);
   int slope_error_new = m_new - abs(x2 - x1);
@@ -79,8 +81,7 @@ void Canvas::bresenhamline(int x1, int y1, int x2, int y2, Color c, bool scanlin
       if (slope_error_new >= 0) {
         // @TODO: push pos(x, y) after y change
         if (scanline and res) {
-          cout << "y value: " << y << " x value: " << x << "\n";
-          scanlines.push_back( pos(x, y) );
+          scanlines.push_back( get_pos(x, y) );
         }
         if (y1 < y2) ++y;
         else --y;
@@ -93,7 +94,11 @@ void Canvas::bresenhamline(int x1, int y1, int x2, int y2, Color c, bool scanlin
     slope_error_new = m_new - (y2 - y1);
     if (y1 > y2) {std::swap(x1,x2);std::swap(y1,y2);}
     for (int y = y1, x = x1; y <= y2; ++y) {
-      printpxl(x,y,c);
+      bool res = printpxl(x,y,c);
+      // @TODO: push pos(x, y) after y change
+      if (scanline and res) {
+        scanlines.push_back( get_pos(x, y) );
+      }
       slope_error_new += m_new;
       if (slope_error_new >= 0) {
         if (x1 < x2) ++x;
@@ -117,12 +122,12 @@ void Canvas::rect(int _w, int _h, Point start, Color color) {
   for ( ; y >= (start.y); --y)
     printpxl(x, y, color);
 }
+
 void Canvas::rect(Point topleft, Point bottomright, Color color) {
   int _w = bottomright.x - topleft.x;
   int _h = bottomright.y - topleft.y;
   rect(_w, _h, topleft, color);
 }
-
 /**
  * Fill algorithm scanline
  * \param lines a list o coordenates
@@ -131,6 +136,7 @@ void Canvas::polyline(std::vector<Point> points, Color color) {
   for (int i = 1; i < points.size(); ++i) 
     line(points[i-1], points[i], color);
 }
+
 //@TODO modify the command line to store the points if scanline fill is set.
 void Canvas::polygon(std::vector<Point> points, Color color) {
   size_t n = points.size();
@@ -138,74 +144,27 @@ void Canvas::polygon(std::vector<Point> points, Color color) {
     line(points[i-1], points[i], color, true);
   line(points[0], points[n-1], color, true);
   //Scanline fill
-  /*
-  for ( auto it=scanlines.begin(); it!=scanlines.end(); ++it ) {
-    sort(it->second.begin(), it->second.end());
-    for ( int i=0; i < it->second.size(); i+=2) {
-      for (int xi=it->second[i]; xi < it->second[i+1]; ++xi)
-        printpxl(it->first, xi, color);
-    }
-  }*/
+  sort(scanlines.begin(), scanlines.end());
+  for ( int i=0; i < scanlines.size()+1; i+=2) {
+    auto start = scanlines[i];
+    auto end = scanlines[i+1];
+    print_scanline(start, end, Color(255,0,0));
+  }
   scanlines.clear();
 }
 /**
  * Fill algorithm scanline
  * \param lines a list o points of the polygon
  */
-void Canvas::scanline(std::vector<Point> points, Color color) {
-  //@TODO ordenar as linhas por y_min
-  // - ideia: criar uma classe util de fraction para facilitar os
-  // calculos com o coeficiente angular
-  size_t n = points.size();
-  std::deque<Line> lines(n);
-  for (int i = 1; i < n; ++i)
-    lines[i] = Line(points[i-1], points[i]);
-  lines[0] = Line(points[0], points[n-1]);
-  // Sorting the lines by y_min
-  std::sort(lines.begin(), lines.end(), Line::comp_ymin);
-  int yi = lines[0].y_min();
-  int yf = lines[0].y_max();
-  for (auto it = lines.begin(); it != lines.end(); ++it){
-    yf = (it->y_max() > yf) ? it->y_max() : yf;
-  }
-  // @TODO modify it to not use m as float
-  std::deque<Line> work;
-  int dy = 0;
-  // For each scanline do:
-  for (;yi < yf; ++yi) {
-    std::deque<Point> sl_pts;
-    while ( lines.front().y_min() < yi ) {
-      work.push_front(lines.front());
-      lines.pop_front();
-    }
-    for (auto it=work.begin(); it != work.end(); ++it){
-      // If scanline is higher than the line, remove it
-      if (it->y_max() < yi) {
-        work.erase(it);
-      }
-      // Else, calculate the intersections
-      else {
-        //std::cout << "line inclination: " << it->m_i << "\n";
-      }
-    }
-    ++dy;
+void Canvas::print_scanline(unsigned char* start, unsigned char* end, Color color) {
+  for(auto it = start; it < end; it+=3) {
+    *it = color.r;
+    *(it+1) = color.g;
+    *(it+2) = color.b;
   }
 }
-/**
- * Saves the canvas as a ppm image
- */
-void Canvas::imwrite(std::string filename) {
-  //this->draw();
-  std::fstream fs (filename, std::fstream::out);
-  if (!fs) 
-    std::cout << "Error loading file\n";
-  fs << "P3\n" << _w << " " << _h << "\n" << "255\n" ;
-  for ( int i = 0; i < _w*_h*3; ++i )
-    fs << (int) _pixels[i] << "\n";
-  fs.close();
-}
-bool Canvas::printpxl(int x, int y, Color color)
-{
+
+bool Canvas::printpxl(int x, int y, Color color) {
   if (x > _w or y > _h or x < 0 or y < 0) {
     //std::cerr << "point out of boundaries\n";
     return false;
@@ -216,7 +175,7 @@ bool Canvas::printpxl(int x, int y, Color color)
   return true;
 }
 
-unsigned char * Canvas::pos(int x, int y) {
+unsigned char * Canvas::get_pos(int x, int y) {
   return &_pixels[(y*_w + x)*CHANNELS];
 }
 
