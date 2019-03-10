@@ -37,7 +37,7 @@ class Canvas
        this->draw_bg(color);
    }
    ~Canvas(){
-    delete _pixels;
+    delete[] _pixels;
    }
   /**
    * Draws the background
@@ -56,7 +56,8 @@ class Canvas
    void rect(int _w, int _h, Point start, Color color=Color(0,0,0));
    void rect(Point topleft, Point bottomright, Color color=Color(0,0,0));
    void polyline(std::vector<Point> points, Color color=Color(0,0,0));
-   void polygon(std::vector<Point> points, Color color=Color(0,0,0));
+   void polygon(std::vector<Point> points, Color stroke);
+   void polygon(std::vector<Point> points, Color stroke, Color fill);
    //void scanline(std::vector<Point> points, Color color=Color(0,0,0));
 };
 

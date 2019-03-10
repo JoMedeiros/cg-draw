@@ -40,8 +40,11 @@ struct Line
 struct Color
 {
   unsigned char r, g, b;
-  Color(unsigned char red, unsigned char green, unsigned char blue) {
+  Color(unsigned char red=0, unsigned char green=0, unsigned char blue=0) {
     r = red; g = green; b = blue;
+  }
+  Color(const Color &other) {
+    r = other.r; g = other.g; b = other.b;
   }
 };
 

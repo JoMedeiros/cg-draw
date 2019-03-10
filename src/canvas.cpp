@@ -70,6 +70,7 @@ void Canvas::mirrorCircle(int xc, int yc, int x, int y, Color color) {
  * Bresenham Algorithm to draw lines
  */
 void Canvas::bresenhamline(int x1, int y1, int x2, int y2, Color c, bool scanline) {
+  //@TODO There is an error in stop condition for decreasing y (?)
   bool increase_x = abs(x1 - x2) >= abs(y1 - y2);
   int m_new = 2 * abs(y2 - y1);
   int slope_error_new = m_new - abs(x2 - x1);
@@ -80,11 +81,11 @@ void Canvas::bresenhamline(int x1, int y1, int x2, int y2, Color c, bool scanlin
       slope_error_new += m_new;
       if (slope_error_new >= 0) {
         // @TODO: push pos(x, y) after y change
-        if (scanline and res) {
-          scanlines.push_back( get_pos(x, y) );
-        }
         if (y1 < y2) ++y;
         else --y;
+        if (scanline and res) {
+          scanlines.push_back( get_pos(x+1, y) );
+        }
         slope_error_new -= 2 * (x2 - x1);
       }
     }
@@ -138,25 +139,32 @@ void Canvas::polyline(std::vector<Point> points, Color color) {
 }
 
 //@TODO modify the command line to store the points if scanline fill is set.
-void Canvas::polygon(std::vector<Point> points, Color color) {
+void Canvas::polygon(std::vector<Point> points, Color stroke, Color fill) {
   size_t n = points.size();
   for (int i = 1; i < n; ++i) 
-    line(points[i-1], points[i], color, true);
-  line(points[0], points[n-1], color, true);
+    line(points[i-1], points[i], stroke, true);
+  line(points[0], points[n-1], stroke, true);
   //Scanline fill
   sort(scanlines.begin(), scanlines.end());
-  for ( int i=0; i < scanlines.size()+1; i+=2) {
+  for ( int i=0; i < scanlines.size()-1; i+=2) {
     auto start = scanlines[i];
     auto end = scanlines[i+1];
     print_scanline(start, end, Color(255,0,0));
   }
   scanlines.clear();
 }
+void Canvas::polygon(std::vector<Point> points, Color stroke) {
+  size_t n = points.size();
+  for (int i = 1; i < n; ++i) 
+    line(points[i-1], points[i], stroke, false);
+  line(points[0], points[n-1], stroke, false);
+}
 /**
  * Fill algorithm scanline
  * \param lines a list o points of the polygon
  */
 void Canvas::print_scanline(unsigned char* start, unsigned char* end, Color color) {
+  // @TODO paint only a pair number per line (y)
   for(auto it = start; it < end; it+=3) {
     *it = color.r;
     *(it+1) = color.g;
