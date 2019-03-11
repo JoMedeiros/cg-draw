@@ -24,6 +24,7 @@ class Canvas
    int _w, _h;
    unsigned char * _pixels;
    vector<unsigned char *> scanlines; //< Interscetion points
+   vector<Point> scanline_points;
    void bresenhamline(int x1, int y1, int x2, int y2, Color c, bool scanline=false);
    void bresenhamcircle(Point c, int r, Color color);
    void mirrorCircle(int xc, int yc, int x, int y, Color color);

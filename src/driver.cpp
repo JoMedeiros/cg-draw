@@ -112,7 +112,7 @@ int main(int argc, char * argv[])
           Point pt(points_node[i].as<int>(), points_node[i+1].as<int>());
           points.push_back(pt);
         }
-        c.polygon(points, Color(255,0,255));
+        c.polygon(points, Color(255,0,255), Color(255,255,0));
           //, Color(255,0,0));
       }
       catch (exception & e) {

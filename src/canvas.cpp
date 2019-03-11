@@ -80,25 +80,27 @@ void Canvas::bresenhamline(int x1, int y1, int x2, int y2, Color c, bool scanlin
       bool res = printpxl(x,y,c);
       slope_error_new += m_new;
       if (slope_error_new >= 0) {
+        if (scanline) {
+          scanlines.push_back( get_pos(x, y) );//The y if for the next iteration
+          scanline_points.push_back( Point(x, y));
+        }
         // @TODO: push pos(x, y) after y change
         if (y1 < y2) ++y;
         else --y;
-        if (scanline and res) {
-          scanlines.push_back( get_pos(x+1, y) );
-        }
         slope_error_new -= 2 * (x2 - x1);
       }
     }
   }
   else {
     m_new = 2 * abs(x2 - x1);
-    slope_error_new = m_new - (y2 - y1);
+    slope_error_new = m_new - abs(y2 - y1);
     if (y1 > y2) {std::swap(x1,x2);std::swap(y1,y2);}
     for (int y = y1, x = x1; y <= y2; ++y) {
       bool res = printpxl(x,y,c);
       // @TODO: push pos(x, y) after y change
-      if (scanline and res) {
+      if ( scanline ) {
         scanlines.push_back( get_pos(x, y) );
+        scanline_points.push_back( Point(x, y));
       }
       slope_error_new += m_new;
       if (slope_error_new >= 0) {
@@ -146,10 +148,13 @@ void Canvas::polygon(std::vector<Point> points, Color stroke, Color fill) {
   line(points[0], points[n-1], stroke, true);
   //Scanline fill
   sort(scanlines.begin(), scanlines.end());
+  cout << scanlines.size();
   for ( int i=0; i < scanlines.size()-1; i+=2) {
-    auto start = scanlines[i];
+    auto start = scanlines[i]+3;
     auto end = scanlines[i+1];
-    print_scanline(start, end, Color(255,0,0));
+    if (distance(start, end) < _w)
+      print_scanline(start, end, Color(255,0,0));
+    else ++i;
   }
   scanlines.clear();
 }
