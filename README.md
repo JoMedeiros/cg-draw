@@ -1,6 +1,8 @@
-# Computer Graphics - 2D draw
+# Rasterinha
 
-## Requisites
+Rasterinha is a Computer Graphics project: a 2D rasterizer.
+
+## Requirements
 
 - git
 - yaml-cpp
