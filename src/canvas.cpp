@@ -23,11 +23,29 @@ void Canvas::imwrite(std::string filename) {
  * Draws line in the canvas _pixels
  */
 void Canvas::line(Point pt1, Point pt2, Color color, bool scanline) {
-  bresenhamline(pt1.x, pt1.y, pt2.x, pt2.y, color, scanline);
+  //bresenhamline(pt1.x, pt1.y, pt2.x, pt2.y, color, scanline);
+  DDA_line(pt1.x, pt1.y, pt2.x, pt2.y, color, scanline);
 }
 
 void Canvas::line(int x1, int y1, int x2, int y2, Color c, bool scanline) {
-  bresenhamline(x1, y1, x2, y2, c, scanline);
+  //bresenhamline(x1, y1, x2, y2, c, scanline);
+  DDA_line(x1, y1, x2, y2, c, scanline);
+}
+
+void Canvas::DDA_line( int x1, int y1, int x2, int y2, Color c, bool scanline ) {
+  int dx = (x2 - x1);
+  int dy = (y2 - y1);
+  int steps = max(abs(dx), abs(dy));
+  float x_increment = dx / (float) steps;
+  float y_increment = dy / (float) steps;
+  float x = x1, y = y1;
+  for ( int i=0; i < steps; ++i) {
+    int prev_y = round(y);
+    printpxl(round(x), round(y), c);
+    x = x + x_increment;
+    y = y + y_increment;
+    if (scanline and round(y) != prev_y) scanlines.push_back( get_pos(x, y) );
+  }
 }
 /**
  * Draws circle in the canvas _pixels
@@ -149,12 +167,12 @@ void Canvas::polygon(std::vector<Point> points, Color stroke, Color fill) {
   //Scanline fill
   sort(scanlines.begin(), scanlines.end());
   cout << scanlines.size();
-  for ( int i=0; i < scanlines.size()-1; i+=2) {
-    auto start = scanlines[i]+3;
+  for ( int i=0; i < scanlines.size(); i+=2) {
+    auto start = scanlines[i];
     auto end = scanlines[i+1];
-    if (distance(start, end) < _w)
+    //if (distance(start, end) < _w)
       print_scanline(start, end, Color(255,0,0));
-    else ++i;
+    //else ++i;
   }
   scanlines.clear();
 }
@@ -170,7 +188,7 @@ void Canvas::polygon(std::vector<Point> points, Color stroke) {
  */
 void Canvas::print_scanline(unsigned char* start, unsigned char* end, Color color) {
   // @TODO paint only a pair number per line (y)
-  for(auto it = start; it < end; it+=3) {
+  for(auto it = start; it <= end; it+=3) {
     *it = color.r;
     *(it+1) = color.g;
     *(it+2) = color.b;
@@ -189,6 +207,6 @@ bool Canvas::printpxl(int x, int y, Color color) {
 }
 
 unsigned char * Canvas::get_pos(int x, int y) {
-  return &_pixels[(y*_w + x)*CHANNELS];
+  return &_pixels[((y+1)*_w + x)*CHANNELS];
 }
 

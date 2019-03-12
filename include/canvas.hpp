@@ -12,6 +12,7 @@
 #include <map>
 #include <utility>
 #include <algorithm>  //std::sort
+#include <cmath>
 #include "utils.hpp"
 
 using namespace std;
@@ -26,6 +27,7 @@ class Canvas
    vector<unsigned char *> scanlines; //< Interscetion points
    vector<Point> scanline_points;
    void bresenhamline(int x1, int y1, int x2, int y2, Color c, bool scanline=false);
+   void DDA_line( int x1, int y1, int x2, int y2, Color c, bool scanline );
    void bresenhamcircle(Point c, int r, Color color);
    void mirrorCircle(int xc, int yc, int x, int y, Color color);
    void midptellipse(int rx, int ry, int xc, int yc);
