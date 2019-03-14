@@ -3,6 +3,17 @@
 #include "yaml-cpp/yaml.h"
 #include "canvas.hpp"
 
+std::map<std::string, Color> color_table;
+Color load_color(YAML::Node & color_node) {
+  Color color;
+  if (color_node.Type() == YAML::NodeType::Scalar)
+    color = color_table[color_node.as<string>()];
+  else if (color_node.Type() == YAML::NodeType::Sequence)
+    color = Color(color_node[0].as<int>(), color_node[1].as<int>(),
+        color_node[2].as<int>());
+  return color;
+}
+
 int main(int argc, char * argv[])
 {
   if (argc == 1) {
@@ -18,7 +29,6 @@ int main(int argc, char * argv[])
     return 1;
   }
   int width, height;
-  std::map<std::string, Color> color_table;
   YAML::Node img, colors, objects;
   try {
     img = YAML::LoadFile(argv[1]);
@@ -40,7 +50,9 @@ int main(int argc, char * argv[])
   for(YAML::const_iterator it=colors.begin();it!=colors.end();++it) {
     std::string key = it->first.as<std::string>();
     auto node = it->second.as<YAML::Node>();
-    Color values; values.r = node[0].as<int>(); values.g = node[1].as<int>();
+    Color values; 
+    values.r = node[0].as<int>(); 
+    values.g = node[1].as<int>();
     values.b = node[2].as<int>();
     color_table.insert( make_pair( key, values ) );
   }
@@ -52,30 +64,20 @@ int main(int argc, char * argv[])
         auto line = it->second.as<YAML::Node>();
         int x1 = line["x1"].as<int>(); int x2 = line["x2"].as<int>();
         int y1 = line["y1"].as<int>(); int y2 = line["y2"].as<int>();
-        auto color = line["stroke"]; Color stroke;
-        if (color.Type() == YAML::NodeType::Scalar)
-          stroke = color_table[color.as<string>()];
+        auto stroke_node = line["stroke"]; Color stroke;
+        if (stroke_node.Type() == YAML::NodeType::Scalar)
+          stroke = color_table[stroke_node.as<string>()];
+        else if (stroke_node.Type() == YAML::NodeType::Sequence and stroke_node.size() == 3) {
+          stroke.r = (unsigned char) stroke_node[0].as<int>();
+          stroke.g = (unsigned char) stroke_node[1].as<int>();
+          stroke.b = (unsigned char) stroke_node[2].as<int>();
+        }
         c.line(x1, y1, x2, y2, stroke);
       }
       catch (std::exception & e) {
         std::cout << "Error drawing line.\n"
-          << "One of the arguments might be in invalid format.\n"
-          << "Remember to put a space after color (: )";
-      }
-    }
-    else if (it->first.as<std::string>() == "rect"){
-      try {
-        auto line = it->second.as<YAML::Node>();
-        int x1 = line["x1"].as<int>();
-        int x2 = line["x2"].as<int>();
-        int y1 = line["y1"].as<int>();
-        int y2 = line["y2"].as<int>();
-        c.rect(Point(x1, y1), Point(x2, y2));
-      }
-      catch (std::exception & e) {
-        std::cout << "Error drawing rectangle.\n"
-          << "One of the arguments might be in invalid format.\n"
-          << "Remember to put a space after color (: )";
+          << "One or more of the arguments might be in invalid format.\n"
+          << e.what() << "\n";
       }
     }
     else if (it->first.as<string>() == "circle") {
@@ -85,22 +87,19 @@ int main(int argc, char * argv[])
         int cy = circle["cy"].as<int>();
         int r = circle["r"].as<int>();
         auto stroke_node = circle["stroke"];
-        Color stroke, fill;
-        if (stroke_node.Type() == YAML::NodeType::Scalar)
-          stroke = color_table[stroke_node.as<string>()];
-        else if (stroke_node.Type() == YAML::NodeType::Sequence)
-          stroke = Color(stroke_node[0].as<int>(), stroke_node[1].as<int>(),
-              stroke_node[2].as<int>());
-        //if (circle["coisa"])
-          //std::cout << "certo\n";
-          //for (int i = 0; i < test.size(); ++i)
-          //std::cout << "Hey!\n" << test[i].as<int>();
-        c.circle(Point(cx, cy), r, stroke);
+        auto fill_node = circle["fill"];
+        Color stroke = load_color(stroke_node), fill;
+        if (fill_node.Type() != YAML::NodeType::Null) {
+          fill = load_color(fill_node);
+          c.circle(Point(cx, cy), r, stroke, fill);
+        }
+        else
+          c.circle(Point(cx, cy), r, stroke);
       }
       catch (std::exception & e) {
         std::cout << "Error drawing circle.\n"
           << "One of the arguments might be in invalid format.\n"
-          << "Remember to put a space after color (: )";
+          << e.what() << "\n";
       }
     }
     else if (it->first.as<string>() == "polygon") {
@@ -112,27 +111,40 @@ int main(int argc, char * argv[])
           Point pt(points_node[i].as<int>(), points_node[i+1].as<int>());
           points.push_back(pt);
         }
-        c.polygon(points, Color(255,0,255), Color(255,255,0));
-          //, Color(255,0,0));
+        auto stroke_node = polygon["stroke"];
+        auto fill_node = polygon["fill"];
+        Color stroke = load_color(stroke_node), fill;
+        if (fill_node.Type() != YAML::NodeType::Null) {
+          fill = load_color(fill_node);
+          c.polygon(points, stroke, fill);
+        }
+        else
+          c.polygon(points, stroke);
       }
       catch (exception & e) {
         std::cout << "Error drawing circle.\n"
           << "One of the arguments might be in invalid format.\n"
-          << "Remember to put a space after color (: )";
+          << e.what() << "\n";
       }
     }
+    /*else if (it->first.as<std::string>() == "rect"){
+      try {
+        auto rect = it->second.as<YAML::Node>();
+        int x1 = rect["x1"].as<int>();
+        int x2 = rect["x2"].as<int>();
+        int y1 = rect["y1"].as<int>();
+        int y2 = rect["y2"].as<int>();
+        auto stroke_node = rect["stroke"], fill_node = rect["fill"]; 
+        Color stroke, fill;
+      }
+      catch (std::exception & e) {
+        std::cout << "Error drawing rectangle.\n"
+          << "One of the arguments might be in invalid format.\n"
+          << e.what() << "\n";
+      }
+    }*/
   }
 
-  //Point pt1(410, 210), pt2(150, 150), pt3(120, 200),
-        //pt4(400, 40);
-
-  //c.circle(pt4, 200, Color(0,0,255));
-  // A rectangle
-  //c.rect(200,50, Point(150,50), Color(255,255,0));
-  //std::vector<Point> pts = {pt1, pt2, pt3, pt4};
-  //c.polygon(pts, Color(255,111,97));
-  //c.scanline(pts);
-  
   // Saving image
   std::string ofile("img.ppm");
   if ( argc == 3 ) {

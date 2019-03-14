@@ -39,19 +39,20 @@ void Canvas::DDA_line( int x1, int y1, int x2, int y2, Color c, bool scanline ) 
   float x_increment = dx / (float) steps;
   float y_increment = dy / (float) steps;
   float x = x1, y = y1;
-  for ( int i=0; i < steps; ++i) {
-    int prev_y = round(y);
+  for ( int i=0; i <= steps; ++i) {
+    //int prev_y = round(y);
     printpxl(round(x), round(y), c);
     x = x + x_increment;
     y = y + y_increment;
-    if (scanline and round(y) != prev_y) scanlines.push_back( get_pos(x, y) );
+    //if (scanline and round(y) != prev_y) scanlines.push_back( get_pos(x, y) );
   }
 }
 /**
  * Draws circle in the canvas _pixels
  */
-void Canvas::circle(Point c, int r, Color color) {
-  bresenhamcircle(c,r,color);
+void Canvas::circle(Point c, int r, Color stroke, Color fill) {
+  bresenhamcircle(c,r,stroke);
+  // @TODO fill algorithm
 }
 /**
  * Bresenham Algorithm to draw circles
@@ -130,40 +131,19 @@ void Canvas::bresenhamline(int x1, int y1, int x2, int y2, Color c, bool scanlin
   }
 }
 /**
- * A simple algorithm to draw rectangle
- */
-void Canvas::rect(int _w, int _h, Point start, Color color) {
-  int x = start.x, y = start.y;
-  for ( ; x <= (start.x+_w); ++x)
-    printpxl(x, y, color);
-  for ( ; y <= (start.y+_h); ++y)
-    printpxl(x, y, color);
-  for ( ; x >= (start.x); --x)
-    printpxl(x, y, color);
-  for ( ; y >= (start.y); --y)
-    printpxl(x, y, color);
-}
-
-void Canvas::rect(Point topleft, Point bottomright, Color color) {
-  int _w = bottomright.x - topleft.x;
-  int _h = bottomright.y - topleft.y;
-  rect(_w, _h, topleft, color);
-}
-/**
  * Fill algorithm scanline
  * \param lines a list o coordenates
  */
 void Canvas::polyline(std::vector<Point> points, Color color) {
-  for (int i = 1; i < points.size(); ++i) 
+  for (int i = 1; i < points.size(); ++i) {
     line(points[i-1], points[i], color);
+    //color.g += 20;
+  }
 }
 
 //@TODO modify the command line to store the points if scanline fill is set.
 void Canvas::polygon(std::vector<Point> points, Color stroke, Color fill) {
-  size_t n = points.size();
-  for (int i = 1; i < n; ++i) 
-    line(points[i-1], points[i], stroke, true);
-  line(points[0], points[n-1], stroke, true);
+  polygon(points, stroke);
   //Scanline fill
   sort(scanlines.begin(), scanlines.end());
   cout << scanlines.size();
@@ -171,16 +151,18 @@ void Canvas::polygon(std::vector<Point> points, Color stroke, Color fill) {
     auto start = scanlines[i];
     auto end = scanlines[i+1];
     //if (distance(start, end) < _w)
-      print_scanline(start, end, Color(255,0,0));
+      print_scanline(start, end, fill);
     //else ++i;
   }
   scanlines.clear();
 }
 void Canvas::polygon(std::vector<Point> points, Color stroke) {
+  // @TODO Resolve the problem of the scanline flag
   size_t n = points.size();
-  for (int i = 1; i < n; ++i) 
-    line(points[i-1], points[i], stroke, false);
-  line(points[0], points[n-1], stroke, false);
+  for (int i = 1; i < n; ++i) {
+    line(points[i-1], points[i], stroke, true);
+  }
+  line(points[0], points[n-1], stroke, true);
 }
 /**
  * Fill algorithm scanline

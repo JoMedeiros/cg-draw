@@ -55,9 +55,9 @@ class Canvas
    */
    void line(int x1, int y1, int x2, int y2, Color c=Color(0,0,0), bool scanline=false);
    void line(Point pt1, Point pt2, Color c=Color(0,0,0), bool scanline=false);
-   void circle(Point c, int r, Color color=Color(0,0,0));
-   void rect(int _w, int _h, Point start, Color color=Color(0,0,0));
-   void rect(Point topleft, Point bottomright, Color color=Color(0,0,0));
+   void circle(Point c, int r, Color stroke=Color(0,0,0), Color fill=Color(0,0,0));
+   //void rect(int _w, int _h, Point start, Color color=Color(0,0,0));
+   //void rect(Point topleft, Point bottomright, Color stroke=Color(0,0,0), Color fill=Color(0,0,0));
    void polyline(std::vector<Point> points, Color color=Color(0,0,0));
    void polygon(std::vector<Point> points, Color stroke);
    void polygon(std::vector<Point> points, Color stroke, Color fill);
