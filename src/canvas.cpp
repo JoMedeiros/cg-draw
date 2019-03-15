@@ -1,7 +1,5 @@
 #include "canvas.hpp"
 
-// @TODO General: avoid printing pixel outside the canvas
-
 void Canvas::draw_bg(Color color) {
   // @TODO Call draw function in a vector of drawable entities?
   // Initializing background
@@ -21,20 +19,23 @@ void Canvas::imwrite(std::string filename) {
 }
 /**
  * Draws line in the canvas _pixels
+ * @param algorithm The enum type for the algorithm to draw line.
  */
-void Canvas::line(Point pt1, Point pt2, Color color, bool scanline) {
+void Canvas::line(Point pt1, Point pt2, Color color, int algorithm) {
   //bresenhamline(pt1.x, pt1.y, pt2.x, pt2.y, color, scanline);
-  bresenhamline_v2(pt1.x, pt1.y, pt2.x, pt2.y, color);
+  //bresenhamline_v2(pt1.x, pt1.y, pt2.x, pt2.y, color);
   //DDA_line(pt1.x, pt1.y, pt2.x, pt2.y, color, scanline);
+  midpointline(pt1.x, pt1.y, pt2.x, pt2.y, color, algorithm);
 }
 
-void Canvas::line(int x1, int y1, int x2, int y2, Color c, bool scanline) {
+void Canvas::line(int x1, int y1, int x2, int y2, Color c, int algorithm) {
   //bresenhamline(x1, y1, x2, y2, c, scanline);
-  bresenhamline_v2(x1, y1, x2, y2, c);
+  //bresenhamline_v2(x1, y1, x2, y2, c);
   //DDA_line(x1, y1, x2, y2, c, scanline);
+  midpointline( x1, y1, x2, y2, c, algorithm);
 }
 
-void Canvas::DDA_line( int x1, int y1, int x2, int y2, Color c, bool scanline ) {
+void Canvas::DDA_line( int x1, int y1, int x2, int y2, Color c, int alg) {
   int dx = (x2 - x1);
   int dy = (y2 - y1);
   int steps = max(abs(dx), abs(dy));
@@ -49,7 +50,7 @@ void Canvas::DDA_line( int x1, int y1, int x2, int y2, Color c, bool scanline ) 
     //if (scanline and round(y) != prev_y) scanlines.push_back( get_pos(x, y) );
   }
 }
-void Canvas::bresenhamline_v2( int x1, int y1, int x2, int y2, Color c ) {
+void Canvas::bresenhamline( int x1, int y1, int x2, int y2, Color c, int alg) {
   int dx = x2 - x1, dy = y2 - y1; // dx = 1, dy = 0
   int ix = x2 >= x1 ? 1:-1, iy = y2 >= y1 ? 1:-1;// ix = 1, iy = 1
   int x = x1, y = y1;// x = 1, y = 1
@@ -73,6 +74,39 @@ void Canvas::bresenhamline_v2( int x1, int y1, int x2, int y2, Color c ) {
         D -= dy;
       }
       D += dx;
+    }
+  }
+}
+void Canvas::midpointline( int x1, int y1, int x2, int y2, Color c , int alg){
+  int dx = (x2 - x1), dy = (y2 - y1);
+  int d = dx > dy ? dy - (dx/2) : dx - (dy/2);
+  int x = x1, y = y1;
+  int xi = (x2 > x1 ? 1 : -1), yi = (y2 > y1 ? 1 : -1);
+  printpxl(x, y, c);
+  if (abs(dx) >= abs(dy)) {
+    while ( x != x2) {
+      x += xi;
+      if (d < 0) d += dy;
+      else {
+        d += (dy - dx);
+        y += yi;
+        if (y - y_min > 0 and y - y_min < scanline_points.size() and
+            alg%2) scanline_points[y - y_min].push_back(x);
+      }
+      printpxl(x, y, c);
+    }
+  }
+  else {
+    while ( y != y2) {
+      y += yi;
+      if (d < 0) d += dx;
+      else {
+        d += (dx - dy);
+        x += xi;
+      }
+      if (y - y_min > 0 and y - y_min < scanline_points.size() and 
+          alg%2) scanline_points[y - y_min].push_back(x);
+      printpxl(x, y, c);
     }
   }
 }
@@ -115,58 +149,12 @@ void Canvas::mirrorCircle(int xc, int yc, int x, int y, Color color) {
   printpxl(xc-y, yc-x, color);
 }
 /**
- * Bresenham Algorithm to draw lines
- */
-void Canvas::bresenhamline(int x1, int y1, int x2, int y2, Color c, bool scanline) {
-  //@TODO There is an error in stop condition for decreasing y (?)
-  bool increase_x = abs(x1 - x2) >= abs(y1 - y2);
-  int m_new = 2 * abs(y2 - y1);
-  int slope_error_new = m_new - abs(x2 - x1);
-  if (increase_x){
-    if (x1 > x2) {std::swap(x1,x2);std::swap(y1,y2);}
-    for (int x = x1, y = y1; x <= x2; ++x) {
-      bool res = printpxl(x,y,c);
-      slope_error_new += m_new;
-      if (slope_error_new >= 0) {
-        if (scanline) {
-          scanlines.push_back( get_pos(x, y) );//The y if for the next iteration
-          scanline_points.push_back( Point(x, y));
-        }
-        // @TODO: push pos(x, y) after y change
-        if (y1 < y2) ++y;
-        else --y;
-        slope_error_new -= 2 * (x2 - x1);
-      }
-    }
-  }
-  else {
-    m_new = 2 * abs(x2 - x1);
-    slope_error_new = m_new - abs(y2 - y1);
-    if (y1 > y2) {std::swap(x1,x2);std::swap(y1,y2);}
-    for (int y = y1, x = x1; y <= y2; ++y) {
-      bool res = printpxl(x,y,c);
-      // @TODO: push pos(x, y) after y change
-      if ( scanline ) {
-        scanlines.push_back( get_pos(x, y) );
-        scanline_points.push_back( Point(x, y));
-      }
-      slope_error_new += m_new;
-      if (slope_error_new >= 0) {
-        if (x1 < x2) ++x;
-        else --x;
-        slope_error_new -= 2 * (y2 - y1);
-      }
-    }
-  }
-}
-/**
  * Fill algorithm scanline
  * \param lines a list o coordenates
  */
 void Canvas::polyline(std::vector<Point> points, Color color) {
   for (int i = 1; i < points.size(); ++i) {
     line(points[i-1], points[i], color);
-    //color.g += 20;
   }
 }
 
@@ -174,24 +162,28 @@ void Canvas::polyline(std::vector<Point> points, Color color) {
 void Canvas::polygon(std::vector<Point> points, Color stroke, Color fill) {
   polygon(points, stroke);
   //Scanline fill
-  sort(scanlines.begin(), scanlines.end());
-  cout << scanlines.size();
-  for ( int i=0; i < scanlines.size(); i+=2) {
-    auto start = scanlines[i];
-    auto end = scanlines[i+1];
-    //if (distance(start, end) < _w)
-      print_scanline(start, end, fill);
-    //else ++i;
+  for (int i=0; i < scanline_points.size(); ++i) {
+    cout << "Line " << y_min + i << "\n";
+    print_scanline(scanline_points[i]);
   }
-  scanlines.clear();
+  scanline_points.clear();
 }
 void Canvas::polygon(std::vector<Point> points, Color stroke) {
   // @TODO Resolve the problem of the scanline flag
   size_t n = points.size();
+  // Find max and min y values for scanline
+  y_min = points[0].y;
+  y_max = points[0].y;
   for (int i = 1; i < n; ++i) {
-    line(points[i-1], points[i], stroke, true);
+    if (points[i].y > y_max) y_max = points[i].y;
+    if (points[i].y < y_min) y_min = points[i].y;
   }
-  line(points[0], points[n-1], stroke, true);
+  scanline_points.resize(y_max - y_min + 1);
+  // Draw lines
+  for (int i = 1; i < n; ++i) {
+    line(points[i-1], points[i], stroke, ALGORITHM::SCANLINE | ALGORITHM::BRESENHAM);
+  }
+  line(points[0], points[n-1], stroke, ALGORITHM::SCANLINE | ALGORITHM::BRESENHAM);
 }
 /**
  * Fill algorithm scanline
@@ -199,11 +191,23 @@ void Canvas::polygon(std::vector<Point> points, Color stroke) {
  */
 void Canvas::print_scanline(unsigned char* start, unsigned char* end, Color color) {
   // @TODO paint only a pair number per line (y)
-  for(auto it = start; it <= end; it+=3) {
+  for(auto it = start+3; it < end; it+=3) {
     *it = color.r;
     *(it+1) = color.g;
     *(it+2) = color.b;
   }
+}
+void Canvas::print_scanline(vector<int> xs) {
+//@TODO sort the xs and start to print
+  sort(xs.begin(), xs.end());
+  cout << "All xs: ";
+  for (int i=0; i < xs.size(); ++i){
+    //cout << "Intersection pair: " << "( " << xs[i-1] << ", " << xs[i] << " )\n";
+    cout << xs[i] << ", ";
+    //++i;
+    //for 
+  }
+  cout << "\n";
 }
 
 bool Canvas::printpxl(int x, int y, Color color) {
@@ -218,6 +222,6 @@ bool Canvas::printpxl(int x, int y, Color color) {
 }
 
 unsigned char * Canvas::get_pos(int x, int y) {
-  return &_pixels[((y+1)*_w + x)*CHANNELS];
+  return &_pixels[((y)*_w + x)*CHANNELS];
 }
 

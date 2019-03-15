@@ -72,7 +72,7 @@ int main(int argc, char * argv[])
           stroke.g = (unsigned char) stroke_node[1].as<int>();
           stroke.b = (unsigned char) stroke_node[2].as<int>();
         }
-        c.line(x1, y1, x2, y2, stroke);
+        c.line(x1, y1, x2, y2, stroke, ALGORITHM::MIDPOINT);
       }
       catch (std::exception & e) {
         std::cout << "Error drawing line.\n"
@@ -97,6 +97,25 @@ int main(int argc, char * argv[])
           c.circle(Point(cx, cy), r, stroke);
       }
       catch (std::exception & e) {
+        std::cout << "Error drawing circle.\n"
+          << "One of the arguments might be in invalid format.\n"
+          << e.what() << "\n";
+      }
+    }
+    else if (it->first.as<string>() == "polyline") {
+      try {
+        YAML::Node polygon = it->second.as<YAML::Node>();
+        auto points_node = polygon["points"];
+        vector<Point> points;
+        for (int i=0; i < points_node.size(); i+=2){
+          Point pt(points_node[i].as<int>(), points_node[i+1].as<int>());
+          points.push_back(pt);
+        }
+        auto stroke_node = polygon["stroke"];
+        Color stroke = load_color(stroke_node);
+        c.polyline(points, stroke);
+      }
+      catch (exception & e) {
         std::cout << "Error drawing circle.\n"
           << "One of the arguments might be in invalid format.\n"
           << e.what() << "\n";

@@ -19,20 +19,29 @@ using namespace std;
 
 #define CHANNELS 3
 
+enum ALGORITHM {
+  SCANLINE = 1,
+  DDA = 2,
+  BRESENHAM = 4,
+  MIDPOINT = 6
+};
+
 class Canvas
 {
  private:
    int _w, _h;
    unsigned char * _pixels;
-   vector<unsigned char *> scanlines; //< Interscetion points
-   vector<Point> scanline_points;
-   void bresenhamline(int x1, int y1, int x2, int y2, Color c, bool scanline=false);
-   void DDA_line( int x1, int y1, int x2, int y2, Color c, bool scanline );
-   void bresenhamline_v2( int x1, int y1, int x2, int y2, Color c );
+   vector<vector<int>> scanline_points;
+   int y_min; //< y_min for scanline
+   int y_max; //< y_max for scanline
+   void DDA_line( int x1, int y1, int x2, int y2, Color c, int alg=2);
+   void bresenhamline( int x1, int y1, int x2, int y2, Color c, int alg=2);
+   void midpointline( int x1, int y1, int x2, int y2, Color c, int alg=2 );
    void bresenhamcircle(Point c, int r, Color color);
    void mirrorCircle(int xc, int yc, int x, int y, Color color);
    void midptellipse(int rx, int ry, int xc, int yc);
    void print_scanline(unsigned char *start, unsigned char *end, Color color);
+   void print_scanline(vector<int> xs);
    bool printpxl(int x, int y, Color color=Color(0,0,0));
    unsigned char * get_pos(int x, int y);
  public:
@@ -54,8 +63,8 @@ class Canvas
   /**
    * Draws line in the canvas _pixels
    */
-   void line(int x1, int y1, int x2, int y2, Color c=Color(0,0,0), bool scanline=false);
-   void line(Point pt1, Point pt2, Color c=Color(0,0,0), bool scanline=false);
+   void line(int x1, int y1, int x2, int y2, Color stroke, int algorithm=6);
+   void line(Point pt1, Point pt2, Color stroke, int algorithm=6);
    void circle(Point c, int r, Color stroke=Color(0,0,0), Color fill=Color(0,0,0));
    //void rect(int _w, int _h, Point start, Color color=Color(0,0,0));
    //void rect(Point topleft, Point bottomright, Color stroke=Color(0,0,0), Color fill=Color(0,0,0));

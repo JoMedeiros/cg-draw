@@ -8,20 +8,24 @@ colors:
   red: [ 255, 0, 0 ]
   green: [ 0, 255, 0 ]
 objects:
-  line: {x1: 100, y1: 100, x2: 300, y2: 300, stroke: red}
+  #  line: {x1: 100, y1: 100, x2: 300, y2: 300, stroke: red}
   polygon: {points: [100, 10, 
                       40, 198, 
                       190, 78, 
                       10, 78, 
                       160, 198], fill: [255, 0, 0]}
   # Hexagon
-  #  polygon : {points: [350,150,
-  #                      275,280,
-  #                      125,280,
-  #                      50,150,
-  #                      125,20,
-  #                      275,20]}
-  circle: {cx: 400, cy: 300, r: 200, stroke: [255, 0, 255]}
-  circle: {cx: 200, cy: 100, r: 150, stroke: green}
-  rect: {x1: 50, y1: 50, x2: 750, y2: 550}
+  polygon : {points: [350,150,
+                      275,280,
+                      125,280,
+                      50,150,
+                      125,20,
+                      275,20]}
+  polygon: {points: [100, 10, 50, 10, 50, 50], fill: red}
+  #line: {x1: 100, y1: 10, x2: 50, y2: 10, stroke: green}
+  #line: {x1: 50, y1: 50, x2: 50, y2: 10, stroke: green}
+  line: {x1: 100, y1: 50, x2: 100, y2: 10, stroke: green}
+  #circle: {cx: 400, cy: 300, r: 200, stroke: [255, 0, 255]}
+  #circle: {cx: 200, cy: 100, r: 150, stroke: green}
+  #rect: {x1: 50, y1: 50, x2: 750, y2: 550}
 

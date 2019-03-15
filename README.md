@@ -30,7 +30,7 @@ make
 Run the program with:
 
 ```
-./cg-draw \<image\_name\> 
+./cg-draw <image_name> 
 ```
 
 Where \<image\_name\> is a path to a image descriptor in yaml format.
