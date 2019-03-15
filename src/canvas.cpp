@@ -24,12 +24,14 @@ void Canvas::imwrite(std::string filename) {
  */
 void Canvas::line(Point pt1, Point pt2, Color color, bool scanline) {
   //bresenhamline(pt1.x, pt1.y, pt2.x, pt2.y, color, scanline);
-  DDA_line(pt1.x, pt1.y, pt2.x, pt2.y, color, scanline);
+  bresenhamline_v2(pt1.x, pt1.y, pt2.x, pt2.y, color);
+  //DDA_line(pt1.x, pt1.y, pt2.x, pt2.y, color, scanline);
 }
 
 void Canvas::line(int x1, int y1, int x2, int y2, Color c, bool scanline) {
   //bresenhamline(x1, y1, x2, y2, c, scanline);
-  DDA_line(x1, y1, x2, y2, c, scanline);
+  bresenhamline_v2(x1, y1, x2, y2, c);
+  //DDA_line(x1, y1, x2, y2, c, scanline);
 }
 
 void Canvas::DDA_line( int x1, int y1, int x2, int y2, Color c, bool scanline ) {
@@ -45,6 +47,33 @@ void Canvas::DDA_line( int x1, int y1, int x2, int y2, Color c, bool scanline ) 
     x = x + x_increment;
     y = y + y_increment;
     //if (scanline and round(y) != prev_y) scanlines.push_back( get_pos(x, y) );
+  }
+}
+void Canvas::bresenhamline_v2( int x1, int y1, int x2, int y2, Color c ) {
+  int dx = x2 - x1, dy = y2 - y1; // dx = 1, dy = 0
+  int ix = x2 >= x1 ? 1:-1, iy = y2 >= y1 ? 1:-1;// ix = 1, iy = 1
+  int x = x1, y = y1;// x = 1, y = 1
+  if (abs(dx) >= abs(dy)) {
+    int D = dy - dx;// D = -1
+    for (;x != (x2+ix); x+=ix) {
+      printpxl(x, y, c);
+      if (D >= 0){
+        y += iy;
+        D -= dx;
+      }
+      D += dy;
+    }
+  }
+  else {
+    int D = dx - dy;
+    for (;y != (y2+iy); y+=iy) {
+      printpxl(x, y, c);
+      if (D >= 0){
+        x += ix;
+        D -= dy;
+      }
+      D += dx;
+    }
   }
 }
 /**

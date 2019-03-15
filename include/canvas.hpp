@@ -28,6 +28,7 @@ class Canvas
    vector<Point> scanline_points;
    void bresenhamline(int x1, int y1, int x2, int y2, Color c, bool scanline=false);
    void DDA_line( int x1, int y1, int x2, int y2, Color c, bool scanline );
+   void bresenhamline_v2( int x1, int y1, int x2, int y2, Color c );
    void bresenhamcircle(Point c, int r, Color color);
    void mirrorCircle(int xc, int yc, int x, int y, Color color);
    void midptellipse(int rx, int ry, int xc, int yc);
