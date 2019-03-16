@@ -9,6 +9,7 @@ colors:
   green: [ 0, 255, 0 ]
 objects:
   line: {x1: 100, y1: 100, x2: 300, y2: 300, stroke: red}
+  # Estrela
   polygon: {points: [100, 10, 
                       40, 198, 
                       190, 78, 
