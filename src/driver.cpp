@@ -72,7 +72,7 @@ int main(int argc, char * argv[])
           stroke.g = (unsigned char) stroke_node[1].as<int>();
           stroke.b = (unsigned char) stroke_node[2].as<int>();
         }
-        c.line(x1, y1, x2, y2, stroke, ALGORITHM::MIDPOINT);
+        c.line(x1, y1, x2, y2, stroke, ALG::MIDPOINT);
       }
       catch (std::exception & e) {
         std::cout << "Error drawing line.\n"
