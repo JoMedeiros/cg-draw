@@ -1,4 +1,6 @@
 #include "canvas.hpp"
+//@TODO create a list of horizontal lines to remove every x in scanlines between
+//this line
 
 void Canvas::draw_bg(Color color) {
   // Initializing background
@@ -87,8 +89,8 @@ void Canvas::midpointline( int x1, int y1, int x2, int y2, Color c , bool scan){
       else {
         d += (dy - dx);
         y += yi;
-        if (y - y_min > 0 and y - y_min < scanline_points.size() and
-            scan) scanline_points[y - y_min].push_back(x);
+        if (scan and y - y_min > 0 and y - y_min < scanline_points.size() ) 
+          scanline_points[y - y_min].push_back({x, -1});
       }
       printpxl(x, y, c);
     }
@@ -101,8 +103,8 @@ void Canvas::midpointline( int x1, int y1, int x2, int y2, Color c , bool scan){
         d += (dx - dy);
         x += xi;
       }
-      if (y - y_min > 0 and y - y_min < scanline_points.size() and 
-          scan) scanline_points[y - y_min].push_back(x);
+      if ( scan and y - y_min > 0 and y - y_min < scanline_points.size() ) 
+        scanline_points[y - y_min].push_back({x, -1});
       printpxl(x, y, c);
     }
   }
@@ -160,8 +162,9 @@ void Canvas::polygon(std::vector<Point> points, Color stroke, Color fill) {
   polygon(points, stroke);
   //Scanline fill
   for (int i=0; i < scanline_points.size(); ++i) {
-    cout << "Line " << y_min + i << "\n";
+    //cout << "Line " << y_min + i << "\n";
     print_scanline(scanline_points[i]);
+    ++y_min;
   }
   scanline_points.clear();
 }
@@ -191,24 +194,21 @@ void Canvas::polygon(std::vector<Point> points, Color stroke) {
 void Canvas::print_scanline(unsigned char* start, unsigned char* end, Color color) {
   // @TODO paint only a pair number per line (y)
   for(auto it = start+3; it < end; it+=3) {
+    cout << "-";
     *it = color.r;
     *(it+1) = color.g;
     *(it+2) = color.b;
   }
-}
-void Canvas::print_scanline(vector<int> xs) {
-//@TODO sort the xs and start to print
-  sort(xs.begin(), xs.end());
-  cout << "All xs: ";
-  for (int i=0; i < xs.size(); i+=2){
-    //cout << "Intersection pair: " << "( " << xs[i-1] << ", " << xs[i] << " )\n";
-    cout << xs[i] << ", " << xs[i+1];
-    //++i;
-    //for 
-    //print_scanline( get_pos(xs[i], y_min+i ), get_pos(xs[i+1], y_min+i), Color(10,80,255) );
-    
-  }
   cout << "\n";
+}
+void Canvas::print_scanline(vector<StartEnd> xs) {
+  //@TODO sort the xs and start to print
+  sort(xs.begin(), xs.end());
+  for (int i=0; i < xs.size(); i+=2){
+    int start = xs[i][END] == -1 ? xs[i][START] : xs[i][START];
+    int end = xs[i+1][START];
+    print_scanline( get_pos( start, y_min ), get_pos( end, y_min ), Color(10, 80, 255) );
+  }
 }
 
 bool Canvas::printpxl(int x, int y, Color color) {

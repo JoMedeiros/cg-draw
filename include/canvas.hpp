@@ -7,6 +7,7 @@
 //#include <cstdlib>
 //#include <utility>
 #include <vector>     //std::vector
+#include <array>     //std::array
 //#include <list>       //std::list
 //#include <deque>      //std::deque
 //#include <map>
@@ -18,6 +19,10 @@
 using namespace std;
 
 #define CHANNELS 3
+#define START 0
+#define END 0
+
+typedef array<int, 2> StartEnd;
 
 enum ALG {
   SCANLINE = 1,
@@ -31,9 +36,10 @@ class Canvas
  private:
    int _w, _h;
    unsigned char * _pixels;
-   vector<vector<int>> scanline_points;
+   vector<vector<StartEnd>> scanline_points;
    int y_min; //< y_min for scanline
    int y_max; //< y_max for scanline
+   int y_cur; //< current y for scanline
    void DDA_line( int x1, int y1, int x2, int y2, Color c, bool scan=false);
    void bresenhamline( int x1, int y1, int x2, int y2, Color c, bool scan=false);
    void midpointline( int x1, int y1, int x2, int y2, Color c, bool scan=false);
@@ -41,7 +47,7 @@ class Canvas
    void mirrorCircle(int xc, int yc, int x, int y, Color color);
    void midptellipse(int rx, int ry, int xc, int yc);
    void print_scanline(unsigned char *start, unsigned char *end, Color color);
-   void print_scanline(vector<int> xs);
+   void print_scanline(vector<StartEnd> xs);
    bool printpxl(int x, int y, Color color=Color(0,0,0));
    unsigned char * get_pos(int x, int y);
  public:
