@@ -5,27 +5,30 @@ width: 800
 height: 600
 colors:
   white: [ 255, 255, 255 ]
-  red: [ 255, 0, 0 ]
   green: [ 0, 255, 0 ]
+  my_magenta: [255, 0, 128]
+  my_violet: [127, 0, 255]
+  my_green: [0, 255, 127]
 objects:
   #  line: {x1: 100, y1: 100, x2: 300, y2: 300, stroke: red}
   polygon: {points: [100, 10, 
                       40, 198, 
                       190, 78, 
                       10, 78, 
-                      160, 198], fill: [255, 0, 0]}
+                      160, 198], fill: my_green}
   # Hexagon
   polygon : {points: [550, 150,
                       475, 280,
                       325, 280,
                       250, 150,
                       325, 80,
-                      475, 20]}
-  polygon: {points: [100, 10, 50, 10, 50, 50], fill: red}
+                      475, 20], fill: my_magenta}
+  polygon: {points: [100, 10, 50, 10, 50, 50], fill: my_violet}
   #line: {x1: 100, y1: 10, x2: 50, y2: 10, stroke: green}
   #line: {x1: 50, y1: 50, x2: 50, y2: 10, stroke: green}
   line: {x1: 100, y1: 50, x2: 100, y2: 10, stroke: green}
-  #circle: {cx: 400, cy: 300, r: 200, stroke: [255, 0, 255]}
+  circle: {cx: 400, cy: 300, r: 200, stroke: [255, 0, 255]}
+  arc: {cx: 10, cy: 10, startX: 50, startY: 50, angle: 60}
   #circle: {cx: 200, cy: 100, r: 150, stroke: green}
   #rect: {x1: 50, y1: 50, x2: 750, y2: 550}
 

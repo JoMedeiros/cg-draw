@@ -146,6 +146,24 @@ int main(int argc, char * argv[])
           << e.what() << "\n";
       }
     }
+    if (it->first.as<std::string>() == "arc"){
+      try {
+        auto arc = it->second.as<YAML::Node>();
+        int cx = arc["cx"].as<int>(); 
+        int startX = arc["startX"].as<int>();
+        int cy = arc["cy"].as<int>();
+        int startY = arc["startY"].as<int>();
+        int angle = arc["angle"].as<int>();
+        auto stroke_node = arc["stroke"];
+        Color stroke = load_color( stroke_node );
+        c.arc( Point( cx, cy) , Point( startX, startY ), angle, stroke );
+      }
+      catch (std::exception & e) {
+        std::cout << "Error drawing arc.\n"
+          << "One or more of the arguments might be in invalid format.\n"
+          << e.what() << "\n";
+      }
+    }
     /*else if (it->first.as<std::string>() == "rect"){
       try {
         auto rect = it->second.as<YAML::Node>();

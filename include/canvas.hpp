@@ -46,11 +46,8 @@ class Canvas
    void bresenhamcircle(Point c, int r, Color color);
    void mirrorCircle(int xc, int yc, int x, int y, Color color);
    void midptellipse(int rx, int ry, int xc, int yc);
-   void print_scanline(unsigned char *start, unsigned char *end, Color color);
-   void print_scanline(vector<StartEnd> xs);
    bool printpxl(int x, int y, Color color=Color(0,0,0));
-   unsigned char * get_pos(int x, int y);
-   void scanline(vector<Line> &lines);
+   void scanline(vector<Line> &lines, Color fill );
  public:
    Canvas(int width, int height, Color color=Color(255, 255, 255)) : 
      _w{width}, _h{height}, _pixels{new unsigned char[width*height*CHANNELS]} {
@@ -77,7 +74,7 @@ class Canvas
    void polyline(std::vector<Point> points, Color color=Color(0,0,0));
    void polygon(std::vector<Point> points, Color stroke);
    void polygon(std::vector<Point> points, Color stroke, Color fill);
-   //void scanline(std::vector<Point> points, Color color=Color(0,0,0));
+   void arc( Point center, Point start, int angle, Color stroke=Color(0,0,0));
 };
 
 #endif // __CANVAS_HPP__

@@ -42,11 +42,9 @@ void Canvas::DDA_line( int x1, int y1, int x2, int y2, Color c, bool scan) {
   float y_increment = dy / (float) steps;
   float x = x1, y = y1;
   for ( int i=0; i <= steps; ++i) {
-    //int prev_y = round(y);
     printpxl(round(x), round(y), c);
     x = x + x_increment;
     y = y + y_increment;
-    //if (scanline and round(y) != prev_y) scanlines.push_back( get_pos(x, y) );
   }
 }
 void Canvas::bresenhamline( int x1, int y1, int x2, int y2, Color c, bool scan) {
@@ -154,7 +152,6 @@ void Canvas::polyline(std::vector<Point> points, Color color) {
   }
 }
 
-//@TODO modify the command line to store the points if scanline fill is set.
 void Canvas::polygon(std::vector<Point> points, Color stroke, Color fill) {
   //Scanline fill
   vector<Line> lines;
@@ -162,11 +159,11 @@ void Canvas::polygon(std::vector<Point> points, Color stroke, Color fill) {
     lines.push_back( Line(points[i-1], points[i]) );
   }
   lines.push_back( Line( points[0], points.back() ) );
-  scanline( lines );
+  scanline( lines, fill );
   //Lines
   polygon(points, stroke);
 }
-void Canvas::scanline(vector<Line> &lines) {
+void Canvas::scanline( vector<Line> &lines, Color fill ) {
   sort( lines.begin(), lines.end() );// vector is faster in sort algorithm
   list<Line> lines_lst(lines.begin(), lines.end());//list is faster to remove randomly
   int y_scan = lines.front().y_min();
@@ -180,7 +177,6 @@ void Canvas::scanline(vector<Line> &lines) {
         it = lines_lst.erase(it);
       }
       int x = it->start.x + ((y_scan - it->y_min()) * it->m_i);
-      cout << "Putting x value: " << x << "\n";
       xs.push_back(x);
     }
     sort( xs.begin(), xs.end() );
@@ -189,7 +185,7 @@ void Canvas::scanline(vector<Line> &lines) {
         auto it1 = it;
         auto it2 = ++it;
         for (int x=(*it1)+1; x <= *it2; ++x)
-          printpxl(x, y_scan, Color(130, 210, 255));
+          printpxl( x, y_scan, fill );
       }
       ++y_scan;
     }
@@ -197,16 +193,7 @@ void Canvas::scanline(vector<Line> &lines) {
   }
 }
 void Canvas::polygon(std::vector<Point> points, Color stroke) {
-  // @TODO Fix the problem of the scanline flag
   size_t n = points.size();
-  // Find max and min y values for scanline
-  /*y_min = points[0].y;
-  y_max = points[0].y;
-  for (int i = 1; i < n; ++i) {
-    if (points[i].y > y_max) y_max = points[i].y;
-    if (points[i].y < y_min) y_min = points[i].y;
-  }
-  scanline_points.resize(y_max - y_min + 1);*/
   // Draw lines
   for (int i = 1; i < n; ++i) {
     line(points[i-1].x, points[i-1].y, points[i].x, points[i].y,
@@ -216,30 +203,19 @@ void Canvas::polygon(std::vector<Point> points, Color stroke) {
       stroke, ALG::SCANLINE | ALG::MIDPOINT);
 }
 /**
- * Fill algorithm scanline
- * \param lines a list o points of the polygon
+ * Draws a arc in counterclockwise degrees from a start.
+ * @param center The center of the arc
+ * @param start Start point
+ * @param angle The angle in degrees
  */
-void Canvas::print_scanline(unsigned char* start, unsigned char* end, Color color) {
-  // @TODO paint only a pair number per line (y)
-  for(auto it = start+3; it < end; it+=3) {
-    cout << "-";
-    *it = color.r;
-    *(it+1) = color.g;
-    *(it+2) = color.b;
-  }
-  cout << "\n";
-}
-bool arr_comp (array<int,2> a1, array<int,2> a2){
-  return a1[START] < a2[START];
-}
-void Canvas::print_scanline(vector<StartEnd> xs) {
-  //@TODO sort the xs and start to print
-  sort(xs.begin(), xs.end(), arr_comp);
-  for (int i=0; i < xs.size(); i+=2){
-    int start = xs[i][END] == -1 ? xs[i][START] : xs[i][END];
-    int end = xs[i+1][START];
-    print_scanline( get_pos( start, y_min ), get_pos( end, y_min ), Color(10, 80, 255) );
-  }
+void Canvas::arc( Point center, Point start, int angle, Color stroke ) {
+  // Calculate radius
+  int dx = start.x - center.x;
+  int dy = start.y - center.y;
+  int r = sqrt( dx*dx + dy*dy );
+  cout << "dx: " << dx << "\n";
+  cout << "dy: " << dy << "\n";
+  cout << "Raio: " << r << "\n";
 }
 
 bool Canvas::printpxl(int x, int y, Color color) {
@@ -251,9 +227,5 @@ bool Canvas::printpxl(int x, int y, Color color) {
   _pixels[(y*_w + x)*CHANNELS + 1] = color.g;
   _pixels[(y*_w + x)*CHANNELS + 2] = color.b;
   return true;
-}
-
-unsigned char * Canvas::get_pos(int x, int y) {
-  return &_pixels[((y)*_w + x)*CHANNELS];
 }
 
