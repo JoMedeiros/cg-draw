@@ -1,5 +1,5 @@
 cmake_minimum_required( VERSION 3.1 )
-project( cg-draw )
+project( rasterinha )
 
 set(COMP_FLAGS "-std=c++11")
 

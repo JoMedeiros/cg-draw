@@ -8,7 +8,7 @@
 //#include <utility>
 #include <vector>     //std::vector
 #include <array>     //std::array
-//#include <list>       //std::list
+#include <list>       //std::list
 //#include <deque>      //std::deque
 //#include <map>
 //#include <utility>
@@ -50,6 +50,7 @@ class Canvas
    void print_scanline(vector<StartEnd> xs);
    bool printpxl(int x, int y, Color color=Color(0,0,0));
    unsigned char * get_pos(int x, int y);
+   void scanline(vector<Line> &lines);
  public:
    Canvas(int width, int height, Color color=Color(255, 255, 255)) : 
      _w{width}, _h{height}, _pixels{new unsigned char[width*height*CHANNELS]} {

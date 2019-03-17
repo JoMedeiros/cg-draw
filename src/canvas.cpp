@@ -1,6 +1,6 @@
 #include "canvas.hpp"
 //@TODO create a list of horizontal lines to remove every x in scanlines between
-//this line
+//that line
 
 void Canvas::draw_bg(Color color) {
   // Initializing background
@@ -82,6 +82,7 @@ void Canvas::midpointline( int x1, int y1, int x2, int y2, Color c , bool scan){
   int x = x1, y = y1;
   int xi = (x2 > x1 ? 1 : -1), yi = (y2 > y1 ? 1 : -1);
   printpxl(x, y, c);
+
   if (abs(dx) >= abs(dy)) {
     while ( x != x2) {
       x += xi;
@@ -89,8 +90,6 @@ void Canvas::midpointline( int x1, int y1, int x2, int y2, Color c , bool scan){
       else {
         d += (dy - dx);
         y += yi;
-        if (scan and y - y_min > 0 and y - y_min < scanline_points.size() ) 
-          scanline_points[y - y_min].push_back({x, -1});
       }
       printpxl(x, y, c);
     }
@@ -103,8 +102,6 @@ void Canvas::midpointline( int x1, int y1, int x2, int y2, Color c , bool scan){
         d += (dx - dy);
         x += xi;
       }
-      if ( scan and y - y_min > 0 and y - y_min < scanline_points.size() ) 
-        scanline_points[y - y_min].push_back({x, -1});
       printpxl(x, y, c);
     }
   }
@@ -159,26 +156,57 @@ void Canvas::polyline(std::vector<Point> points, Color color) {
 
 //@TODO modify the command line to store the points if scanline fill is set.
 void Canvas::polygon(std::vector<Point> points, Color stroke, Color fill) {
-  polygon(points, stroke);
   //Scanline fill
-  for (int i=0; i < scanline_points.size(); ++i) {
-    //cout << "Line " << y_min + i << "\n";
-    print_scanline(scanline_points[i]);
-    ++y_min;
+  vector<Line> lines;
+  for (int i=1; i < points.size(); ++i) {
+    lines.push_back( Line(points[i-1], points[i]) );
   }
-  scanline_points.clear();
+  lines.push_back( Line( points[0], points.back() ) );
+  scanline( lines );
+  //Lines
+  polygon(points, stroke);
+}
+void Canvas::scanline(vector<Line> &lines) {
+  sort( lines.begin(), lines.end() );// vector is faster in sort algorithm
+  list<Line> lines_lst(lines.begin(), lines.end());//list is faster to remove randomly
+  int y_scan = lines.front().y_min();
+  vector<int> xs;
+  while (not lines_lst.empty()){
+    bool stop = false;
+    for ( auto it = lines_lst.begin(); it != lines_lst.end() 
+        and it->y_min() <= y_scan; ++it ) 
+    {
+      if ( (it->y_min() - it->y_max()) == 0 or it->y_max() <= y_scan ){
+        it = lines_lst.erase(it);
+      }
+      int x = it->start.x + ((y_scan - it->y_min()) * it->m_i);
+      cout << "Putting x value: " << x << "\n";
+      xs.push_back(x);
+    }
+    sort( xs.begin(), xs.end() );
+    if (xs.size()%2 == 0 and xs.size() != 0 ){
+      for (auto it=xs.begin(); it != xs.end(); ++it){
+        auto it1 = it;
+        auto it2 = ++it;
+        for (int x=(*it1)+1; x <= *it2; ++x)
+          printpxl(x, y_scan, Color(130, 210, 255));
+      }
+      ++y_scan;
+    }
+    xs.clear();
+  }
 }
 void Canvas::polygon(std::vector<Point> points, Color stroke) {
   // @TODO Fix the problem of the scanline flag
   size_t n = points.size();
   // Find max and min y values for scanline
-  y_min = points[0].y;
+  /*y_min = points[0].y;
   y_max = points[0].y;
   for (int i = 1; i < n; ++i) {
     if (points[i].y > y_max) y_max = points[i].y;
     if (points[i].y < y_min) y_min = points[i].y;
   }
-  scanline_points.resize(y_max - y_min + 1);
+  scanline_points.resize(y_max - y_min + 1);*/
   // Draw lines
   for (int i = 1; i < n; ++i) {
     line(points[i-1].x, points[i-1].y, points[i].x, points[i].y,
@@ -201,11 +229,14 @@ void Canvas::print_scanline(unsigned char* start, unsigned char* end, Color colo
   }
   cout << "\n";
 }
+bool arr_comp (array<int,2> a1, array<int,2> a2){
+  return a1[START] < a2[START];
+}
 void Canvas::print_scanline(vector<StartEnd> xs) {
   //@TODO sort the xs and start to print
-  sort(xs.begin(), xs.end());
+  sort(xs.begin(), xs.end(), arr_comp);
   for (int i=0; i < xs.size(); i+=2){
-    int start = xs[i][END] == -1 ? xs[i][START] : xs[i][START];
+    int start = xs[i][END] == -1 ? xs[i][START] : xs[i][END];
     int end = xs[i+1][START];
     print_scanline( get_pos( start, y_min ), get_pos( end, y_min ), Color(10, 80, 255) );
   }
