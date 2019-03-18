@@ -16,6 +16,7 @@ using namespace std;
 #define CHANNELS 3
 #define START 0
 #define END 0
+#define PI 3.14159265
 
 typedef array<int, 2> StartEnd;
 
@@ -31,10 +32,6 @@ class Canvas
  private:
    int _w, _h;
    unsigned char * _pixels;
-   vector<vector<StartEnd>> scanline_points;
-   int y_min; //< y_min for scanline
-   int y_max; //< y_max for scanline
-   int y_cur; //< current y for scanline
    void DDA_line( int x1, int y1, int x2, int y2, Color stroke );
    void bresenhamline( int x1, int y1, int x2, int y2, Color stroke );
    void midpointline( int x1, int y1, int x2, int y2, Color stroke );
@@ -64,13 +61,12 @@ class Canvas
    * Draws line in the canvas _pixels
    */
    void line(int x1, int y1, int x2, int y2, Color stroke, int algorithm=6);
-   void circle(Point c, int r, Color stroke=Color(0,0,0), Color fill=Color(0,0,0));
-   //void rect(int _w, int _h, Point start, Color color=Color(0,0,0));
-   //void rect(Point topleft, Point bottomright, Color stroke=Color(0,0,0), Color fill=Color(0,0,0));
+   void circle(Point c, int r, Color stroke);
+   void circle(Point c, int r, Color stroke, Color fill);
    void polyline(std::vector<Point> points, Color color=Color(0,0,0));
    void polygon(std::vector<Point> points, Color stroke);
    void polygon(std::vector<Point> points, Color stroke, Color fill, float alpha=1);
-   void arc( Point center, Point start, int angle, Color stroke=Color(0,0,0));
+   void arc( Point center, Point start, float angle, Color stroke );
 };
 
 #endif // __CANVAS_HPP__

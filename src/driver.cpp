@@ -164,9 +164,10 @@ int main(int argc, char * argv[])
         int startX = arc["startX"].as<int>();
         int cy = arc["cy"].as<int>();
         int startY = arc["startY"].as<int>();
-        int angle = arc["angle"].as<int>();
+        int angle = arc["angle"].as<float>();
         auto stroke_node = arc["stroke"];
         Color stroke = load_color( stroke_node );
+        cout << "angle: " << angle << "\n";
         c.arc( Point( cx, cy) , Point( startX, startY ), angle, stroke );
       }
       catch (std::exception & e) {
