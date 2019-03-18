@@ -23,18 +23,18 @@ void Canvas::line(int x1, int y1, int x2, int y2, Color stroke, int algorithm) {
   bool scanline = algorithm & ALG::SCANLINE;
   switch (algorithm ^ 1){
     case ALG::BRESENHAM:
-      bresenhamline(x1, y1, x2, y2, stroke, scanline);
+      bresenhamline( x1, y1, x2, y2, stroke );
       break;
     case ALG::DDA:
-      DDA_line(x1, y1, x2, y2, stroke, scanline);
+      DDA_line( x1, y1, x2, y2, stroke );
       break;
     default: 
-      midpointline( x1, y1, x2, y2, stroke, scanline);
+      midpointline( x1, y1, x2, y2, stroke );
       break;
   }
 }
 
-void Canvas::DDA_line( int x1, int y1, int x2, int y2, Color c, bool scan) {
+void Canvas::DDA_line( int x1, int y1, int x2, int y2, Color stroke ) {
   int dx = (x2 - x1);
   int dy = (y2 - y1);
   int steps = max(abs(dx), abs(dy));
@@ -42,19 +42,19 @@ void Canvas::DDA_line( int x1, int y1, int x2, int y2, Color c, bool scan) {
   float y_increment = dy / (float) steps;
   float x = x1, y = y1;
   for ( int i=0; i <= steps; ++i) {
-    printpxl(round(x), round(y), c);
+    printpxl( round(x), round(y), stroke );
     x = x + x_increment;
     y = y + y_increment;
   }
 }
-void Canvas::bresenhamline( int x1, int y1, int x2, int y2, Color c, bool scan) {
+void Canvas::bresenhamline( int x1, int y1, int x2, int y2, Color stroke ) {
   int dx = abs(x2 - x1), dy = abs(y2 - y1); // dx = 1, dy = 0
   int ix = x2 >= x1 ? 1:-1, iy = y2 >= y1 ? 1:-1;// ix = 1, iy = 1
   int x = x1, y = y1;// x = 1, y = 1
   if (abs(dx) >= abs(dy)) {
     int D = dy - dx;// D = -1
     for (;x != (x2+ix); x+=ix) {
-      printpxl(x, y, c);
+      printpxl( x, y, stroke );
       if (D >= 0){
         y += iy;
         D -= dx;
@@ -65,7 +65,7 @@ void Canvas::bresenhamline( int x1, int y1, int x2, int y2, Color c, bool scan) 
   else {
     int D = dx - dy;
     for (;y != (y2+iy); y+=iy) {
-      printpxl(x, y, c);
+      printpxl( x, y, stroke );
       if (D >= 0){
         x += ix;
         D -= dy;
@@ -74,12 +74,12 @@ void Canvas::bresenhamline( int x1, int y1, int x2, int y2, Color c, bool scan) 
     }
   }
 }
-void Canvas::midpointline( int x1, int y1, int x2, int y2, Color c , bool scan){
+void Canvas::midpointline( int x1, int y1, int x2, int y2, Color stroke ){
   int dx = abs(x2 - x1), dy = abs(y2 - y1);
   int d = dx > dy ? dy - (dx/2) : dx - (dy/2);
   int x = x1, y = y1;
   int xi = (x2 > x1 ? 1 : -1), yi = (y2 > y1 ? 1 : -1);
-  printpxl(x, y, c);
+  printpxl( x, y, stroke );
 
   if (abs(dx) >= abs(dy)) {
     while ( x != x2) {
@@ -89,7 +89,7 @@ void Canvas::midpointline( int x1, int y1, int x2, int y2, Color c , bool scan){
         d += (dy - dx);
         y += yi;
       }
-      printpxl(x, y, c);
+      printpxl( x, y, stroke );
     }
   }
   else {
@@ -100,7 +100,7 @@ void Canvas::midpointline( int x1, int y1, int x2, int y2, Color c , bool scan){
         d += (dx - dy);
         x += xi;
       }
-      printpxl(x, y, c);
+      printpxl( x, y, stroke );
     }
   }
 }
@@ -226,6 +226,26 @@ bool Canvas::printpxl(int x, int y, Color color) {
   _pixels[(y*_w + x)*CHANNELS] = color.r;
   _pixels[(y*_w + x)*CHANNELS + 1] = color.g;
   _pixels[(y*_w + x)*CHANNELS + 2] = color.b;
+  return true;
+}
+
+bool Canvas::printpxl( int x, int y, Color color, float alpha ) {
+  if (x > _w or y > _h or x < 0 or y < 0) {
+    //std::cerr << "point out of boundaries\n";
+    return false;
+  }
+  // Calculating new colors
+  unsigned char bg_r = _pixels[(y*_w + x)*CHANNELS];
+  unsigned char bg_g = _pixels[(y*_w + x)*CHANNELS + 1];
+  unsigned char bg_b = _pixels[(y*_w + x)*CHANNELS + 2];
+  unsigned char out_r = alpha * color.r + (1 - alpha) * bg_r;
+  unsigned char out_g = alpha * color.g + (1 - alpha) * bg_g;
+  unsigned char out_b = alpha * color.b + (1 - alpha) * bg_b;
+
+  _pixels[(y*_w + x)*CHANNELS] = out_r;
+  _pixels[(y*_w + x)*CHANNELS + 1] = out_g;
+  _pixels[(y*_w + x)*CHANNELS + 2] = out_b;
+
   return true;
 }
 
