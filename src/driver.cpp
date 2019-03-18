@@ -1,3 +1,11 @@
+/**
+ * @file    driver.cpp
+ * @brief   Program to load yaml and generate an output image using Canvas 
+ * class.
+ *
+ * @author  Josivan Medeiros da Silva Gois
+ * @date    18/03/2019
+ */
 #include <iostream>
 #include <map>
 #include "yaml-cpp/yaml.h"
