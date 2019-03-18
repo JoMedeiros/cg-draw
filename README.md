@@ -35,7 +35,7 @@ Run the program with:
 
 Where \<image\_name\> is a path to a image descriptor in yaml format.
 
-### yaml image format
+## yaml image format
 
 Here's an example of image description:
 
@@ -50,13 +50,48 @@ objects:
 ```
 
 First we have `width` and `height` of the image in pixels.
-Then we have a table of colors. Each colors is described as an array
+Then we have a table of colors. Each color in `colors` is described as an array
 of three integers. Finally the objects to be drawn. Each object can be:
 
-- line: The arguments are `x1` and `y1` the initial point and `x2` and 
-`y2` the end point.
-- circle: The arguments are `cx` and `cy` the center point and `r` the 
-radius.
+#### Line 
+The arguments are `x1` and `y1` the initial point and `x2` and `y2` the end point.
+`stroke` is the color (defined in `colors` table or in format `[r,g,b]`) of the line.
+
+#### Circle 
+The arguments are `cx` and `cy` the center point and `r` the radius.
+`stroke` is the color (defined in `colors` table or in format `[r,g,b]`) of the line.
+
+#### Polyline
+```
+  polyline: {points: [100, 10, 
+                      40, 198, 
+                      190, 78, 
+                      10, 78, 
+                      160, 198], stroke: my_green}
+```
+
+`points` is a list of points in order to be connected.
+
+`stroke` is the color (defined in `colors` table or in format `[r,g,b]`) of the line.
+
+#### Polygon
+```
+  polyline: {points: [100, 10, 
+                      40, 198, 
+                      190, 78, 
+                      10, 78, 
+                      160, 198], stroke: my_green}
+```
+
+`points` is a list of points in order to be connected (it will close the polygon
+connecting the last and the first points).
+
+`stroke` is the color (defined in `colors` table or in format `[r,g,b]`) of the line.
+
+`fill` is the color (defined in `colors` table or in format `[r,g,b]`) to fill the 
+polygon.
+
+`alpha` is the fill transparancy.
 
 ## Third party libraries
 
