@@ -48,7 +48,8 @@ void Canvas::DDA_line( int x1, int y1, int x2, int y2, Color stroke ) {
         float percent_x = 1 - abs ( x - xi );
         float percent_y = 1 - abs ( y - yi );
         float alpha = percent_x * percent_y;
-        printpxl( round(x), round(y), stroke, alpha );
+        if (alpha > 0.20)
+          printpxl( xi, yi, stroke, alpha );
       }
     }
     x = x + x_increment;
