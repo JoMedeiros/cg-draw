@@ -89,7 +89,8 @@ int main(int argc, char * argv[])
         auto stroke_node = circle["stroke"];
         auto fill_node = circle["fill"];
         Color stroke = load_color(stroke_node), fill;
-        if (fill_node.Type() != YAML::NodeType::Null) {
+        if (fill_node.Type() != YAML::NodeType::Null and 
+            fill_node.Type() != YAML::NodeType::Undefined) {
           fill = load_color(fill_node);
           c.circle(Point(cx, cy), r, stroke, fill);
         }
@@ -104,14 +105,14 @@ int main(int argc, char * argv[])
     }
     else if (it->first.as<string>() == "polyline") {
       try {
-        YAML::Node polygon = it->second.as<YAML::Node>();
-        auto points_node = polygon["points"];
+        YAML::Node polyline = it->second.as<YAML::Node>();
+        auto points_node = polyline["points"];
         vector<Point> points;
         for (int i=0; i < points_node.size(); i+=2){
           Point pt(points_node[i].as<int>(), points_node[i+1].as<int>());
           points.push_back(pt);
         }
-        auto stroke_node = polygon["stroke"];
+        auto stroke_node = polyline["stroke"];
         Color stroke = load_color(stroke_node);
         c.polyline(points, stroke);
       }
@@ -132,16 +133,26 @@ int main(int argc, char * argv[])
         }
         auto stroke_node = polygon["stroke"];
         auto fill_node = polygon["fill"];
+        auto alpha_node = polygon["alpha"];
         Color stroke = load_color(stroke_node), fill;
-        if (fill_node.Type() != YAML::NodeType::Null) {
+        if (fill_node.Type() != YAML::NodeType::Null and
+            fill_node.Type() != YAML::NodeType::Undefined) {
           fill = load_color(fill_node);
-          c.polygon(points, stroke, fill);
+          if (alpha_node.Type() != YAML::NodeType::Null and 
+            alpha_node.Type() != YAML::NodeType::Undefined ) {
+            float alpha = alpha_node.as<float>();
+            cout <<  "alpha = " << alpha << "\n";
+            c.polygon(points, stroke, fill, alpha);
+          }
+          else {
+            c.polygon(points, stroke, fill);
+          }
         }
         else
           c.polygon(points, stroke);
       }
       catch (exception & e) {
-        std::cout << "Error drawing circle.\n"
+        std::cout << "Error drawing polyline.\n"
           << "One of the arguments might be in invalid format.\n"
           << e.what() << "\n";
       }

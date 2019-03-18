@@ -42,7 +42,15 @@ void Canvas::DDA_line( int x1, int y1, int x2, int y2, Color stroke ) {
   float y_increment = dy / (float) steps;
   float x = x1, y = y1;
   for ( int i=0; i <= steps; ++i) {
-    printpxl( round(x), round(y), stroke );
+    // Antialiasing
+    for (int xi=floor(x); xi <= ceil(x);++xi) {
+      for (int yi=floor(y); yi <= ceil(y); ++yi) {
+        float percent_x = 1 - abs ( x - xi );
+        float percent_y = 1 - abs ( y - yi );
+        float alpha = percent_x * percent_y;
+        printpxl( round(x), round(y), stroke, alpha );
+      }
+    }
     x = x + x_increment;
     y = y + y_increment;
   }
@@ -152,18 +160,18 @@ void Canvas::polyline(std::vector<Point> points, Color color) {
   }
 }
 
-void Canvas::polygon(std::vector<Point> points, Color stroke, Color fill) {
+void Canvas::polygon(std::vector<Point> points, Color stroke, Color fill, float alpha) {
   //Scanline fill
   vector<Line> lines;
   for (int i=1; i < points.size(); ++i) {
     lines.push_back( Line(points[i-1], points[i]) );
   }
   lines.push_back( Line( points[0], points.back() ) );
-  scanline( lines, fill );
+  scanline( lines, fill, alpha );
   //Lines
   polygon(points, stroke);
 }
-void Canvas::scanline( vector<Line> &lines, Color fill ) {
+void Canvas::scanline( vector<Line> &lines, Color fill, float alpha ) {
   sort( lines.begin(), lines.end() );// vector is faster in sort algorithm
   list<Line> lines_lst(lines.begin(), lines.end());//list is faster to remove randomly
   int y_scan = lines.front().y_min();
@@ -185,7 +193,7 @@ void Canvas::scanline( vector<Line> &lines, Color fill ) {
         auto it1 = it;
         auto it2 = ++it;
         for (int x=(*it1)+1; x <= *it2; ++x)
-          printpxl( x, y_scan, fill );
+          printpxl( x, y_scan, fill, alpha );
       }
       ++y_scan;
     }
@@ -197,10 +205,10 @@ void Canvas::polygon(std::vector<Point> points, Color stroke) {
   // Draw lines
   for (int i = 1; i < n; ++i) {
     line(points[i-1].x, points[i-1].y, points[i].x, points[i].y,
-        stroke, ALG::SCANLINE | ALG::MIDPOINT);
+        stroke, ALG::SCANLINE | ALG::DDA);
   }
   line( points[0].x, points[0].y, points[n-1].x, points[n-1].y,
-      stroke, ALG::SCANLINE | ALG::MIDPOINT);
+      stroke, ALG::SCANLINE | ALG::DDA);
 }
 /**
  * Draws a arc in counterclockwise degrees from a start.

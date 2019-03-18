@@ -43,7 +43,7 @@ class Canvas
    void midptellipse( int rx, int ry, int xc, int yc );
    bool printpxl( int x, int y, Color color=Color(0,0,0) );
    bool printpxl( int x, int y, Color color, float alpha ) ;
-   void scanline( vector<Line> &lines, Color fill );
+   void scanline( vector<Line> &lines, Color fill, float alpha=1 );
  public:
    Canvas(int width, int height, Color color=Color(255, 255, 255)) : 
      _w{width}, _h{height}, _pixels{new unsigned char[width*height*CHANNELS]} {
@@ -69,7 +69,7 @@ class Canvas
    //void rect(Point topleft, Point bottomright, Color stroke=Color(0,0,0), Color fill=Color(0,0,0));
    void polyline(std::vector<Point> points, Color color=Color(0,0,0));
    void polygon(std::vector<Point> points, Color stroke);
-   void polygon(std::vector<Point> points, Color stroke, Color fill);
+   void polygon(std::vector<Point> points, Color stroke, Color fill, float alpha=1);
    void arc( Point center, Point start, int angle, Color stroke=Color(0,0,0));
 };
 
