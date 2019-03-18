@@ -37,6 +37,7 @@ class Canvas
    void midpointline( int x1, int y1, int x2, int y2, Color stroke );
    void bresenhamcircle( Point c, int r, Color stroke );
    void mirrorCircle( int xc, int yc, int x, int y, Color stroke );
+   void midPointCircle( Point c, int r, Color stroke );
    void midptellipse( int rx, int ry, int xc, int yc );
    bool printpxl( int x, int y, Color color=Color(0,0,0) );
    bool printpxl( int x, int y, Color color, float alpha ) ;

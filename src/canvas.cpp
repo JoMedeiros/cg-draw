@@ -183,7 +183,7 @@ void Canvas::circle(Point c, int r, Color stroke, Color fill) {
  * @param r The radius of the circle.
  * @param stroke  The color of the line.
  */
-void Canvas::bresenhamcircle(Point c, int r, Color stroke) {
+void Canvas::bresenhamcircle( Point c, int r, Color stroke ) {
   int x = 0, y = r;
   int d = 3 - 2 * r;
   mirrorCircle(c.x, c.y, x, y, stroke);
@@ -196,6 +196,44 @@ void Canvas::bresenhamcircle(Point c, int r, Color stroke) {
     else
       d = d + 4 * x + 6;
     mirrorCircle(c.x, c.y, x, y, stroke);
+  }
+}
+/**
+ * @brief   Bresenham Algorithm to draw circles
+ * @param c A Point object. The center of the circle
+ * @param r The radius of the circle.
+ * @param stroke  The color of the line.
+ */
+void Canvas::midPointCircle( Point c, int r, Color stroke ) {
+  int cx = c.x, cy = c.y;
+  int x = r, y = 0; 
+  printpxl( x + cx, y + cy, stroke); 
+  if (r > 0) {
+    printpxl( x + cx, -y + cy, stroke);
+    printpxl( y + cx, x + cy, stroke);
+    printpxl( -y + cx, x + cy, stroke);
+  }
+  int P = 1 - r;
+  while (x > y) {
+    y++;
+    if (P <= 0)
+      P = P + 2*y + 1; 
+    else {
+      x--; 
+      P = P + 2*y - 2*x + 1; 
+    }
+    if (x < y) 
+      break; 
+    printpxl( x + cx, y + cy, stroke );
+    printpxl( -x + cx, y + cy, stroke );
+    printpxl( x + cx, -y + cy, stroke );
+    printpxl( -x + cx, -y + cy, stroke );
+    if (x != y) { 
+      printpxl( y + cx, x + cy, stroke );
+      printpxl( -y + cx, x + cy, stroke );
+      printpxl( y + cx, -x + cy, stroke );
+      printpxl( -y + cx, -x + cy, stroke );
+    }
   }
 }
 /**

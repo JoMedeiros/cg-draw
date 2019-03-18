@@ -13,7 +13,14 @@ Color load_color(YAML::Node & color_node) {
         color_node[2].as<int>());
   return color;
 }
-
+int load_algorithm(YAML::Node & alg_node) {
+  string alg = alg_node.as<string>();
+  if (alg.compare("scanline")) return ALG::SCANLINE;
+  else if (alg.compare("dda")) return ALG::DDA;
+  else if (alg.compare("bresenham")) return ALG::BRESENHAM;
+  else if (alg.compare("midpoint")) return ALG::MIDPOINT;
+  else return ALG::DDA;
+}
 int main(int argc, char * argv[])
 {
   if (argc == 1) {
@@ -141,7 +148,6 @@ int main(int argc, char * argv[])
           if (alpha_node.Type() != YAML::NodeType::Null and 
             alpha_node.Type() != YAML::NodeType::Undefined ) {
             float alpha = alpha_node.as<float>();
-            cout <<  "alpha = " << alpha << "\n";
             c.polygon(points, stroke, fill, alpha);
           }
           else {
@@ -176,22 +182,6 @@ int main(int argc, char * argv[])
           << e.what() << "\n";
       }
     }
-    /*else if (it->first.as<std::string>() == "rect"){
-      try {
-        auto rect = it->second.as<YAML::Node>();
-        int x1 = rect["x1"].as<int>();
-        int x2 = rect["x2"].as<int>();
-        int y1 = rect["y1"].as<int>();
-        int y2 = rect["y2"].as<int>();
-        auto stroke_node = rect["stroke"], fill_node = rect["fill"]; 
-        Color stroke, fill;
-      }
-      catch (std::exception & e) {
-        std::cout << "Error drawing rectangle.\n"
-          << "One of the arguments might be in invalid format.\n"
-          << e.what() << "\n";
-      }
-    }*/
   }
 
   // Saving image
@@ -206,6 +196,5 @@ int main(int argc, char * argv[])
     }
   }
   c.imwrite(ofile);
-  std::cout << "Hello YAML!\n";
   return 0;
 }
