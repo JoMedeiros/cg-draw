@@ -1,0 +1,26 @@
+width: 400
+height: 300
+colors:
+  white: [255, 255, 255]
+  my_blue: [50, 200, 255]
+  my_magenta: [255, 0, 128]
+  my_green: [0, 255, 127]
+  my_violet: [127, 0, 255]
+objects:
+  polyline:
+    stroke: my_magenta
+    points: [ 1,  1, 1, 98, 98, 98, 98, 1]
+  polygon:
+    stroke: my_violet
+    fill: my_blue
+    points: [ 50,  50,
+              50, 250,
+              350, 250]
+  line: {x1: 1, y1: 5, x2: 98, y2: 98, stroke: my_blue} 
+  line: {x1: 1, y1: 7, x2: 98, y2: 78, stroke: my_blue} 
+  line: {x1: 1, y1: 9, x2: 98, y2: 58, stroke: my_blue} 
+  line: {x1: 10, y1: 1, x2: 10, y2: 198, stroke: my_blue} 
+  circle: {cx: 0, cy: 0, r: 300, stroke: my_green}
+  circle: {cx: 0, cy: 0, r: 200, stroke: my_green}
+  circle: {cx: 0, cy: 0, r: 100, stroke: my_green}
+

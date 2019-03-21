@@ -1,5 +1,9 @@
 # Build files
 build/
+# Binaries
+bin/
+# Documentaiton
+docs/
 
 # VIm files
 *~

@@ -1,0 +1,55 @@
+################################################################################
+# @author Josivan Medeiros
+################################################################################
+width: 800
+height: 600
+colors:
+  white: [ 255, 255, 255 ]
+  green: [ 0, 255, 0 ]
+  my_magenta: [255, 0, 128]
+  my_violet: [127, 0, 255]
+  my_green: [0, 255, 127]
+  orange: [255, 160, 0]
+objects:
+  circle: {cx: 400, cy: 300, r: 200, stroke: [255, 0, 128]}
+  circle: {cx: 400, cy: 300, r: 201, stroke: [255, 0, 128]}
+  circle: {cx: 400, cy: 300, r: 202, stroke: [255, 0, 128]}
+  circle: {cx: 400, cy: 300, r: 203, stroke: [255, 0, 128]}
+  circle: {cx: 400, cy: 300, r: 204, stroke: [255, 0, 128]}
+  circle: {cx: 400, cy: 300, r: 205, stroke: [255, 0, 128]}
+  circle: {cx: 400, cy: 300, r: 206, stroke: [255, 0, 128]}
+  circle: {cx: 400, cy: 300, r: 207, stroke: [255, 0, 128]}
+  circle: {cx: 400, cy: 300, r: 208, stroke: [255, 0, 128]}
+  circle: {cx: 400, cy: 300, r: 209, stroke: [255, 0, 128]}
+  circle: {cx: 400, cy: 300, r: 210, stroke: [255, 0, 128]}
+  # Star
+  polygon: {points: [300, 10, 
+                     240, 198, 
+                      390, 78, 
+                     210, 78, 
+                      360, 198], fill: my_green}
+  # Hexagon
+  polygon : {points: [550, 150,
+                      475, 280,
+                      325, 280,
+                      250, 150,
+                      325, 20,
+                      475, 20], fill: my_magenta, alpha: 0.75}
+  line: {x1: 100, y1: 10, x2: 500, y2: 10, stroke: my_violet}
+  line: {x1: 500, y1: 50, x2: 500, y2: 10, stroke: green}
+  line: {x1: 100, y1: 50, x2: 100, y2: 10, stroke: green}
+  circle: {cx: 200, cy: 300, r: 150, stroke: orange}
+  circle: {cx: 200, cy: 300, r: 148, stroke: orange}
+  circle: {cx: 200, cy: 300, r: 146, stroke: orange}
+  circle: {cx: 200, cy: 300, r: 144, stroke: orange}
+  circle: {cx: 200, cy: 300, r: 142, stroke: orange}
+  circle: {cx: 200, cy: 300, r: 140, stroke: my_violet}
+  circle: {cx: 200, cy: 300, r: 138, stroke: my_violet}
+  circle: {cx: 200, cy: 300, r: 136, stroke: my_violet}
+  circle: {cx: 200, cy: 300, r: 134, stroke: my_violet}
+  circle: {cx: 200, cy: 300, r: 132, stroke: my_violet}
+  circle: {cx: 200, cy: 300, r: 130, stroke: my_violet}
+  circle: {cx: 200, cy: 300, r: 120, stroke: my_violet}
+  circle: {cx: 200, cy: 300, r: 110, stroke: orange}
+  circle: {cx: 200, cy: 300, r: 100, stroke: my_violet}
+
